@@ -3,55 +3,1402 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Embedded Google Web App</title>
+    <title>ระบบธุรการออนไลน์ โรงเรียนบ้านละหอกตะแบง สพป.บุรีรัมย์ เขต 2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* CSS สำหรับการจัดหน้าและซ่อนแถบ header ของ Google Apps Script */
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow: hidden; /* ป้องกัน scrollbar ที่ไม่จำเป็นบน body/html */
-            background-color: #f0f0f0; /* สีพื้นหลังเผื่อกรณี iframe โหลดช้า */
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f0f9f3; /* Light Greenish White */
         }
-
-        .iframe-container {
-            width: 100vw; /* กว้างเต็ม viewport width */
-            height: 100vh; /* สูงเต็ม viewport height */
-            overflow: hidden; /* สำคัญ: ซ่อนส่วนของ iframe ที่ล้นออกไป */
-            position: relative; /* เพื่อให้การจัดตำแหน่ง absolute ของ iframe อ้างอิงกับ container นี้ */
+        .tab-button { 
+            flex: 1;
+            padding-top: 0.75rem; padding-bottom: 0.75rem; 
+            padding-left: 0.5rem; padding-right: 0.5rem; 
+            text-align: center;
+            font-weight: 500; 
+            font-size: 0.875rem; 
+            outline: none; 
+            transition-property: color, background-color, border-color;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+            border-bottom-width: 4px;
         }
-
-        .iframe-container iframe {
-            border: none; /* ลบขอบของ iframe */
+        @media (min-width: 640px) { 
+            .tab-button {
+                padding-top: 1rem; padding-bottom: 1rem; 
+                padding-left: 1.5rem; padding-right: 1.5rem; 
+                font-size: 1rem; 
+            }
+        }
+        .tab-active {
+            background-color: #059669; 
+            color: white;
+            border-bottom-color: #fcd34d; 
+        }
+        .tab-inactive {
+            background-color: #f8fafc; 
+            color: #334155; 
+            border-bottom-color: transparent;
+        }
+        .tab-inactive:hover {
+            border-bottom-color: #fbbf24; 
+        }
+        .loader {
+            border: 5px solid #e5e7eb; 
+            border-top: 5px solid #059669; 
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+        .file-upload-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            background-color: #e2e8f0; 
+            padding: 5px 10px;
+            border-radius: 4px;
+            max-width: 100%;
+            overflow: hidden;
+        }
+        .file-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-right: 5px;
+            font-size: 0.875rem;
+        }
+        .remove-file {
+            color: #ef4444; 
+            cursor: pointer;
+        }
+        table {
             width: 100%;
-            /* * เพิ่มความสูงของ iframe มากกว่า 100% ของ container
-             * เพื่อให้มีพื้นที่สำหรับ "ดัน" แถบ header ขึ้นไปซ่อน
-             * ค่า 40px คือความสูงโดยประมาณของแถบ header, อาจต้องปรับค่านี้
-             */
-            height: calc(100% + 40px);
-            position: absolute;
-            /*
-             * เลื่อน iframe ขึ้นไปด้านบน เพื่อให้แถบ header (สมมติว่าสูง 40px)
-             * ถูกซ่อนอยู่นอกพื้นที่แสดงผลของ .iframe-container
-             * ค่า -40px ควรตรงกับส่วนที่เพิ่มเข้าไปใน height
-             */
-            top: -40px;
-            left: 0;
+            border-collapse: collapse;
+            /* table-layout: fixed; removed to allow more flexible column sizing */
+        }
+        th, td {
+            padding: 0.5rem 0.5rem; /* Adjusted padding for mobile */
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0; 
+            word-wrap: break-word; 
+            font-size: 0.875rem; 
+        }
+        @media (min-width: 640px) { 
+             th, td {
+                padding: 0.75rem 1rem; 
+                font-size: 0.875rem; 
+            }
+        }
+        th {
+            background-color: #f1f5f9; 
+            font-weight: 600;
+            color: #065f46; 
+        }
+        tr:hover {
+            background-color: #ecfdf5; 
+        }
+        
+        /* Column width adjustments for responsiveness */
+        .col-doc-number { 
+            width: 25%; /* Allow more space for doc number on small screens */
+            min-width: 80px; /* Minimum width to prevent too much squishing */
+        }
+        .col-date { 
+            width: 25%; 
+            min-width: 90px;
+        }
+        .col-subject { 
+            width: 35%; /* Subject can take remaining space */
+            /* No min-width, let it wrap */
+        }
+        .col-actions { 
+            width: 15%; /* Actions column */
+            min-width: 80px; /* Ensure icons are visible */
+            white-space: nowrap; 
+            text-align: center;
+        }
+
+        @media (min-width: 768px) { /* md breakpoint - adjust for larger screens */
+            .col-doc-number { width: 20%;}
+            .col-date { width: 20%;}
+            .col-subject { width: 40%;} 
+            .col-actions { width: 20%; }
+        }
+        @media (min-width: 1024px) { /* lg breakpoint */
+            .col-doc-number { width: 15%;}
+            .col-date { width: 15%;}
+            .col-subject { width: 55%;}
+            .col-actions { width: 15%; }
+        }
+
+
+        .action-icon { cursor: pointer; margin: 0 0.25rem; font-size: 1rem; } 
+        @media (min-width: 640px) {
+             .action-icon { font-size: 1.1rem; margin: 0 0.375rem; }
+        }
+        .action-icon.delete { color: #ef4444; } 
+        .action-icon.download { color: #059669; } 
+        .action-icon.view { color: #3b82f6; } 
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 6px;
+            color: white;
+            font-weight: 500;
+            z-index: 1050; 
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-120px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); 
+        }
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .notification.success { background-color: #059669; } 
+        .notification.error { background-color: #ef4444; } 
+        .notification.info { background-color: #f59e0b; } 
+
+        .btn-primary-custom {
+            background-color: #059669; 
+            color: white;
+        }
+        .btn-primary-custom:hover {
+            background-color: #047857; 
+        }
+        .btn-secondary-custom { 
+            background-color: #f59e0b; 
+            color: #422006; 
+            padding: 0.5rem 0.75rem; 
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            transition: background-color 0.15s ease-in-out;
+        }
+         .btn-secondary-custom:hover {
+            background-color: #d97706; 
+        }
+        .btn-neutral-custom {
+            background-color: #e2e8f0; 
+            color: #334155;
+        }
+        .btn-neutral-custom:hover {
+            background-color: #cbd5e1;
+        }
+        .pagination-active {
+            z-index: 10;
+            background-color: #059669; 
+            color: white;
+        }
+        .pagination-default {
+            color: #1f2937; 
+            ring-1 ring-inset ring-gray-300;
+        }
+        .pagination-default:hover {
+            background-color: #f9fafb; 
+        }
+        .doc-number-prefix {
+            padding: 0.5rem 0.75rem; 
+            background-color: #e5e7eb; 
+            border: 1px solid #d1d5db; 
+            border-right: none;
+            border-radius: 0.375rem 0 0 0.375rem; 
+            color: #4b5563; 
+            font-size: 0.875rem; 
+            white-space: nowrap;
+        }
+        .doc-number-input {
+            border-radius: 0 0.375rem 0.375rem 0 !important; 
+        }
+        .fab {
+            position: fixed;
+            bottom: 1.5rem; 
+            right: 1.5rem;  
+            width: 3.5rem; 
+            height: 3.5rem; 
+            border-radius: 50%;
+            background-color: #059669; 
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+            z-index: 999; 
+        }
+        .fab:hover {
+            background-color: #047857; 
+            transform: scale(1.1);
+        }
+        .fab i {
+            font-size: 1.5rem; 
         }
     </style>
 </head>
-<body>
-    <div class="iframe-container">
-        <iframe src="https://script.google.com/macros/s/AKfycbwHUGwWSBRE_CkyMkwnvnD1hwfSp_HhfJq5sY0JGQ7KDl1upyL7-OrFKISMFigKSQiP9w/exec"
-                allowfullscreen></iframe>
+<body class="min-h-screen pb-24"> 
+    <div class="notification" id="notification"></div>
+    
+    <div class="container mx-auto px-2 sm:px-4 py-8"> 
+        <div class="bg-white rounded-lg shadow-xl overflow-hidden">
+            <div class="p-4 sm:p-6 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-600 text-white flex items-center space-x-3 sm:space-x-4">
+                <img id="school-logo" src="https://lh3.googleusercontent.com/d/1Q_PoOtyQ8qIt-BlSyp1PNwcksjgNTzqR" alt="School Logo" class="h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20 rounded-full border-2 border-amber-300 object-cover">
+                <div>
+                    <h1 class="text-lg sm:text-xl md:text-3xl font-bold">ระบบธุรการออนไลน์</h1>
+                    <p class="text-xs sm:text-sm md:text-base text-green-100">โรงเรียนบ้านละหอกตะแบง สพป.บุรีรัมย์ เขต 2</p>
+                </div>
+            </div>
+            
+            <div class="flex border-b border-gray-200">
+                <button id="tab-receive" class="tab-button tab-active">
+                    <i class="fas fa-inbox mr-1 sm:mr-2"></i><span class="hidden sm:inline">หนังสือ</span>รับ
+                </button>
+                <button id="tab-send" class="tab-button tab-inactive">
+                    <i class="fas fa-paper-plane mr-1 sm:mr-2"></i><span class="hidden sm:inline">หนังสือ</span>นำส่ง
+                </button>
+                <button id="tab-order" class="tab-button tab-inactive">
+                    <i class="fas fa-file-signature mr-1 sm:mr-2"></i>ทะเบียนคำสั่ง
+                </button>
+            </div>
+            
+            <div class="p-4 sm:p-6">
+                <div id="content-receive" class="tab-content">
+                    <div class="flex justify-between items-center mb-4 sm:mb-6">
+                        <div class="flex items-center space-x-2">
+                            <h2 class="text-lg sm:text-xl font-semibold text-green-700">รายการหนังสือรับ</h2>
+                            <button onclick="exportToExcel('receive')" class="btn-secondary-custom" title="ดาวน์โหลด Excel">
+                                <i class="fas fa-file-excel"></i>
+                            </button>
+                        </div>
+                        </div>
+                    <div class="overflow-x-auto bg-white rounded-md shadow">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr>
+                                    <th class="col-doc-number">เลขที่รับ</th>
+                                    <th class="col-date">วันที่รับ</th>
+                                    <th class="col-subject">เรื่อง</th>
+                                    <th class="col-actions">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="receive-table-body"></tbody>
+                        </table>
+                    </div>
+                    <div id="receive-pagination-controls" class="mt-4"></div>
+                    <div id="receive-loading" class="loader hidden"></div>
+                    <div id="receive-no-data" class="text-center py-6 text-gray-500 hidden">ไม่พบข้อมูลหนังสือรับ</div>
+                </div>
+                
+                <div id="content-send" class="tab-content hidden">
+                     <div class="flex justify-between items-center mb-4 sm:mb-6">
+                        <div class="flex items-center space-x-2">
+                            <h2 class="text-lg sm:text-xl font-semibold text-green-700">รายการหนังสือนำส่ง</h2>
+                            <button onclick="exportToExcel('send')" class="btn-secondary-custom" title="ดาวน์โหลด Excel">
+                                <i class="fas fa-file-excel"></i>
+                            </button>
+                        </div>
+                         </div>
+                    <div class="overflow-x-auto bg-white rounded-md shadow">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr>
+                                    <th class="col-doc-number">เลขที่นำส่ง</th>
+                                    <th class="col-date">วันที่นำส่ง</th>
+                                    <th class="col-subject">เรื่อง</th>
+                                    <th class="col-actions">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="send-table-body"></tbody>
+                        </table>
+                    </div>
+                     <div id="send-pagination-controls" class="mt-4"></div>
+                    <div id="send-loading" class="loader hidden"></div>
+                    <div id="send-no-data" class="text-center py-6 text-gray-500 hidden">ไม่พบข้อมูลหนังสือนำส่ง</div>
                 </div>
 
+                <div id="content-order" class="tab-content hidden">
+                    <div class="flex justify-between items-center mb-4 sm:mb-6">
+                       <div class="flex items-center space-x-2">
+                           <h2 class="text-lg sm:text-xl font-semibold text-green-700">รายการทะเบียนคำสั่ง</h2>
+                           <button onclick="exportToExcel('order')" class="btn-secondary-custom" title="ดาวน์โหลด Excel">
+                               <i class="fas fa-file-excel"></i>
+                           </button>
+                        </div>
+                        </div>
+                   <div class="overflow-x-auto bg-white rounded-md shadow">
+                       <table class="min-w-full">
+                           <thead>
+                               <tr>
+                                   <th class="col-doc-number">เลขที่คำสั่ง</th>
+                                   <th class="col-date">วันที่ออกคำสั่ง</th>
+                                   <th class="col-subject">เรื่อง</th>
+                                   <th class="col-actions">จัดการ</th>
+                               </tr>
+                           </thead>
+                           <tbody id="order-table-body"></tbody>
+                       </table>
+                   </div>
+                    <div id="order-pagination-controls" class="mt-4"></div>
+                   <div id="order-loading" class="loader hidden"></div>
+                   <div id="order-no-data" class="text-center py-6 text-gray-500 hidden">ไม่พบข้อมูลทะเบียนคำสั่ง</div>
+               </div>
+            </div>
+        </div>
+    </div>
+
+    <button id="fab-add-new" class="fab" title="ลงทะเบียนใหม่">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <div id="form-modal" class="fixed inset-0 bg-gray-800 bg-opacity-75 z-50 flex items-center justify-center hidden modal p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full md:max-w-2xl max-h-[95vh] overflow-hidden flex flex-col">
+            <div class="p-4 border-b bg-green-600 text-white flex justify-between items-center">
+                <h3 class="text-xl font-semibold" id="form-modal-title">ลงทะเบียนเอกสาร</h3>
+                <button id="close-form-modal" class="text-green-100 hover:text-white text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4 overflow-y-auto">
+                <form id="document-form" class="space-y-4">
+                    <input type="hidden" id="form-auto-id" name="autoId"> 
+                    <input type="hidden" id="form-type" name="type"> 
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" id="label-doc-number">เลขที่เอกสาร</label>
+                            <div class="flex">
+                                <span id="doc-number-prefix-span" class="doc-number-prefix hidden">ศธ 04083.3163/</span>
+                                <input type="text" id="form-doc-number-suffix" name="docNumberSuffix" class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 p-2 border" required>
+                            </div>
+                            <input type="hidden" id="form-doc-number" name="docNumber"> 
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" id="label-doc-date">วันที่</label>
+                            <input type="date" id="form-doc-date" name="docDate" class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 p-2 border" required>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="form-fields-letter-ref">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" id="label-letter-number">เลขที่หนังสือ (อ้างอิง)</label>
+                            <input type="text" id="form-letter-number" name="letterNumber" class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 p-2 border" placeholder="เลขที่หนังสืออ้างอิง">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" id="label-letter-date">ลงวันที่ (หนังสืออ้างอิง)</label>
+                            <input type="date" id="form-letter-date" name="letterDate" class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 p-2 border">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="form-fields-from-to">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" id="label-from">จาก</label>
+                            <input type="text" id="form-from" name="from" class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 p-2 border" placeholder="หน่วยงาน/ผู้ส่ง">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" id="label-to">ถึง</label>
+                            <input type="text" id="form-to" name="to" class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 p-2 border" placeholder="หน่วยงาน/ผู้รับ">
+                        </div>
+                    </div>
+
+                    <div id="form-field-signatory" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ผู้ลงนาม</label>
+                        <input type="text" id="form-signatory" name="signatory" class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 p-2 border" placeholder="ชื่อผู้ลงนามในคำสั่ง">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">เรื่อง</label>
+                        <input type="text" id="form-subject" name="subject" class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 focus:ring-opacity-50 p-2 border" placeholder="เรื่องของหนังสือ/คำสั่ง" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">อัปโหลดเอกสาร</label>
+                        <div class="flex items-center">
+                            <button type="button" id="form-add-file" class="btn-primary-custom py-2 px-3 rounded-md text-sm flex items-center">
+                                <i class="fas fa-plus mr-2"></i> เพิ่มไฟล์
+                            </button>
+                            <input type="file" id="form-file-input" class="hidden" accept=".pdf,.doc,.docx,.png,.jpeg,.jpg" multiple>
+                        </div>
+                        <div id="form-file-list" class="file-upload-container"></div>
+                        <input type="hidden" id="form-files-data" name="filesData">
+                    </div>
+                </form>
+            </div>
+            <div class="p-4 border-t bg-gray-50 flex justify-end space-x-2">
+                <button type="button" id="form-reset" class="btn-neutral-custom py-2 px-4 rounded-md">
+                    <i class="fas fa-redo mr-2"></i>ล้างข้อมูล
+                </button>
+                <button type="button" id="form-submit" class="btn-primary-custom py-2 px-4 rounded-md">
+                    <i class="fas fa-save mr-2"></i>บันทึกข้อมูล
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="view-modal" class="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center hidden modal p-4">
+        <div class="bg-white rounded-lg shadow-xl w-11/12 md:w-3/4 lg:w-2/3 max-h-[90vh] overflow-y-auto">
+            <div class="p-4 border-b bg-green-600 text-white flex justify-between items-center">
+                <h3 class="text-xl font-semibold" id="view-modal-title">รายละเอียดเอกสาร</h3>
+                <button id="close-view-modal" class="text-green-100 hover:text-white text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6" id="view-modal-content"></div>
+            <div class="p-4 border-t bg-gray-50 flex justify-end">
+                <button id="close-view-modal-btn" class="btn-neutral-custom py-2 px-4 rounded-md">
+                    ปิด
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center hidden modal p-4">
+        <div class="bg-white rounded-lg shadow-xl w-11/12 md:w-1/2 lg:w-1/3">
+            <div class="p-4 border-b bg-red-600 text-white">
+                <h3 class="text-xl font-semibold">ยืนยันการลบ</h3>
+            </div>
+            <div class="p-6">
+                <p>คุณต้องการลบรายการนี้ใช่หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้</p>
+            </div>
+            <div class="p-4 border-t bg-gray-50 flex justify-end space-x-2">
+                <button id="cancel-delete" class="btn-neutral-custom py-2 px-4 rounded-md">
+                    ยกเลิก
+                </button>
+                <button id="confirm-delete" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md">
+                    <i class="fas fa-trash-alt mr-2"></i>ลบรายการ
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <script>
-        // ตัวอย่าง: log เมื่อ iframe โหลดเสร็จ (ถ้าต้องการ)
-        // const iframe = document.querySelector('.iframe-container iframe');
-        // iframe.onload = function() {
-        //     console.log('Embedded Google Apps Script has loaded.');
-        // };
+      google.script.host.close();
+        // Constants
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwHUGwWSBRE_CkyMkwnvnD1hwfSp_HhfJq5sY0JGQ7KDl1upyL7-OrFKISMFigKSQiP9w/exec'; 
+        const SHEET_ID = '1k5nuwfukaK44NYqoVOJPGw2KKaSr_v4lF2G309Iwc_s'; 
+        const FOLDER_ID = '19NsX4QXPiNH8Rrx9bgEDHXOSZbu3w3m6';
+        const SEND_DOC_NUMBER_PREFIX = "ศธ 04083.3163/";
+        
+        let currentFilesArray = []; 
+        let currentTab = 'receive'; 
+        let deleteItemId = null;
+        let deleteItemType = null;
+        
+        let receiveData = []; 
+        let sendData = [];    
+        let orderData = []; 
+        
+        let currentPageReceive = 1;
+        let currentPageSend = 1;
+        let currentPageOrder = 1; 
+        const itemsPerPage = 10; 
+        
+        // DOM Elements
+        const tabReceiveBtn = document.getElementById('tab-receive'); 
+        const tabSendBtn = document.getElementById('tab-send');     
+        const tabOrderBtn = document.getElementById('tab-order'); 
+        const contentReceive = document.getElementById('content-receive');
+        const contentSend = document.getElementById('content-send');
+        const contentOrder = document.getElementById('content-order'); 
+        
+        const receiveTableBody = document.getElementById('receive-table-body');
+        const sendTableBody = document.getElementById('send-table-body');
+        const orderTableBody = document.getElementById('order-table-body'); 
+        const receiveLoading = document.getElementById('receive-loading');
+        const sendLoading = document.getElementById('send-loading');
+        const orderLoading = document.getElementById('order-loading'); 
+        const receiveNoData = document.getElementById('receive-no-data');
+        const sendNoData = document.getElementById('send-no-data');
+        const orderNoData = document.getElementById('order-no-data'); 
+        const receivePaginationControls = document.getElementById('receive-pagination-controls');
+        const sendPaginationControls = document.getElementById('send-pagination-controls');
+        const orderPaginationControls = document.getElementById('order-pagination-controls'); 
+
+        const fabAddNew = document.getElementById('fab-add-new'); 
+
+        const formModal = document.getElementById('form-modal');
+        const closeFormModalBtn = document.getElementById('close-form-modal');
+        const formModalTitle = document.getElementById('form-modal-title');
+        const documentForm = document.getElementById('document-form'); 
+        const formTypeInput = document.getElementById('form-type');
+        
+        const docNumberPrefixSpan = document.getElementById('doc-number-prefix-span');
+        const formDocNumberSuffixInput = document.getElementById('form-doc-number-suffix'); 
+        const formFullDocNumberInput = document.getElementById('form-doc-number'); 
+
+        const formDocDateInput = document.getElementById('form-doc-date');
+        const formLetterNumberInput = document.getElementById('form-letter-number');
+        const formLetterDateInput = document.getElementById('form-letter-date');
+        const formFromInput = document.getElementById('form-from');
+        const formToInput = document.getElementById('form-to');
+        const formSubjectInput = document.getElementById('form-subject');
+        const formSignatoryInput = document.getElementById('form-signatory'); 
+        const formAddFileBtn = document.getElementById('form-add-file');
+        const formFileInput = document.getElementById('form-file-input');
+        const formFileListContainer = document.getElementById('form-file-list');
+        const formFilesDataInput = document.getElementById('form-files-data'); 
+        const formResetBtn = document.getElementById('form-reset');
+        const formSubmitBtn = document.getElementById('form-submit');
+        
+        const labelDocNumber = document.getElementById('label-doc-number');
+        const labelDocDate = document.getElementById('label-doc-date');
+        const labelFrom = document.getElementById('label-from');
+        const labelTo = document.getElementById('label-to');
+        const formFieldsLetterRef = document.getElementById('form-fields-letter-ref'); 
+        const formFieldsFromTo = document.getElementById('form-fields-from-to');       
+        const formFieldSignatory = document.getElementById('form-field-signatory');   
+
+
+        const viewModal = document.getElementById('view-modal');
+        const closeViewModalBtnHeader = document.getElementById('close-view-modal'); 
+        const closeViewModalBtnFooter = document.getElementById('close-view-modal-btn'); 
+        const viewModalTitle = document.getElementById('view-modal-title');
+        const viewModalContent = document.getElementById('view-modal-content');
+        
+        const deleteModal = document.getElementById('delete-modal');
+        const cancelDeleteBtn = document.getElementById('cancel-delete'); 
+        const confirmDeleteBtn = document.getElementById('confirm-delete'); 
+        
+        const notification = document.getElementById('notification');
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData('receive'); 
+            setupEventListeners();
+        });
+        
+        function setupEventListeners() {
+            tabReceiveBtn.addEventListener('click', () => switchTab('receive'));
+            tabSendBtn.addEventListener('click', () => switchTab('send'));
+            tabOrderBtn.addEventListener('click', () => switchTab('order')); 
+            
+            fabAddNew.addEventListener('click', () => openFormModal(currentTab)); 
+            closeFormModalBtn.addEventListener('click', hideFormModal);
+
+            formAddFileBtn.addEventListener('click', () => formFileInput.click());
+            formFileInput.addEventListener('change', handleFormFileSelect);
+            
+            documentForm.addEventListener('submit', handleFormSubmitEvent); 
+            formResetBtn.addEventListener('click', resetDocumentForm); 
+            formSubmitBtn.addEventListener('click', () => documentForm.requestSubmit()); 
+
+            closeViewModalBtnHeader.addEventListener('click', hideViewModal);
+            closeViewModalBtnFooter.addEventListener('click', hideViewModal);
+            
+            cancelDeleteBtn.addEventListener('click', hideDeleteModal);
+            confirmDeleteBtn.addEventListener('click', confirmDeleteItem);
+        }
+
+        function openFormModal(type) {
+            formTypeInput.value = type; 
+            currentFilesArray = []; 
+            updateFormFileList(); 
+
+            const today = new Date().toISOString().split('T')[0];
+            documentForm.reset(); 
+            formDocNumberSuffixInput.value = ''; 
+            formFullDocNumberInput.value = ''; 
+
+            formTypeInput.value = type; 
+            formDocDateInput.value = today; 
+            formLetterDateInput.value = today;
+
+            formFieldsLetterRef.classList.remove('hidden');
+            formFieldsFromTo.classList.remove('hidden');
+            formFieldSignatory.classList.add('hidden'); 
+            docNumberPrefixSpan.classList.add('hidden'); 
+            formDocNumberSuffixInput.classList.remove('doc-number-input'); 
+            formDocNumberSuffixInput.classList.add('w-full'); 
+            formDocNumberSuffixInput.setAttribute('required', 'true'); 
+
+
+            if (type === 'receive') {
+                formModalTitle.textContent = 'ลงทะเบียนหนังสือรับ';
+                labelDocNumber.textContent = 'เลขที่รับ';
+                formDocNumberSuffixInput.placeholder ='กรอกเลขที่รับเอง เช่น 2568/1'; 
+                labelDocDate.textContent = 'วันที่รับ';
+                formDocDateInput.name = 'receiveDate'; 
+                labelFrom.textContent = 'จาก (หน่วยงานต้นเรื่อง)';
+                formFromInput.required = true;
+                labelTo.textContent = 'ถึง (ผู้รับภายใน)';
+                formToInput.required = true;
+                formLetterNumberInput.required = true;
+                formLetterDateInput.required = true;
+            } else if (type === 'send') { 
+                formModalTitle.textContent = 'ลงทะเบียนหนังสือนำส่ง';
+                labelDocNumber.textContent = 'เลขที่นำส่ง';
+                docNumberPrefixSpan.classList.remove('hidden'); 
+                formDocNumberSuffixInput.classList.add('doc-number-input'); 
+                formDocNumberSuffixInput.classList.remove('w-full');
+                formDocNumberSuffixInput.placeholder = '123'; 
+                labelDocDate.textContent = 'วันที่นำส่ง';
+                formDocDateInput.name = 'sendDate'; 
+                labelFrom.textContent = 'จาก (ผู้ส่งภายใน)';
+                formFromInput.required = true;
+                labelTo.textContent = 'ถึง (หน่วยงานปลายทาง)';
+                formToInput.required = true;
+                formLetterNumberInput.required = true;
+                formLetterDateInput.required = true;
+            } else if (type === 'order') {
+                formModalTitle.textContent = 'ลงทะเบียนเลขที่คำสั่ง';
+                labelDocNumber.textContent = 'เลขที่คำสั่ง';
+                formDocNumberSuffixInput.placeholder = 'กรอกเลขที่คำสั่ง เช่น 1/2568';
+                labelDocDate.textContent = 'วันที่ออกคำสั่ง';
+                formDocDateInput.name = 'orderDate'; 
+                formFieldsLetterRef.classList.add('hidden'); 
+                formFieldsFromTo.classList.add('hidden');    
+                formFieldSignatory.classList.remove('hidden'); 
+                formSignatoryInput.required = true;
+                formLetterNumberInput.required = false;
+                formLetterDateInput.required = false;
+                formFromInput.required = false;
+                formToInput.required = false;
+            }
+            
+            formModal.classList.remove('hidden');
+        }
+
+        function hideFormModal() {
+            formModal.classList.add('hidden');
+            resetDocumentForm(); 
+        }
+        
+        function switchTab(tab) {
+            currentTab = tab;
+            let dataArray;
+            
+            [tabReceiveBtn, tabSendBtn, tabOrderBtn].forEach(btn => {
+                btn.classList.remove('tab-active');
+                btn.classList.add('tab-inactive');
+            });
+            [contentReceive, contentSend, contentOrder].forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            if (tab === 'receive') {
+                tabReceiveBtn.classList.add('tab-active');
+                tabReceiveBtn.classList.remove('tab-inactive');
+                contentReceive.classList.remove('hidden');
+                dataArray = receiveData;
+                currentPageReceive = 1;
+            } else if (tab === 'send') {
+                tabSendBtn.classList.add('tab-active');
+                tabSendBtn.classList.remove('tab-inactive');
+                contentSend.classList.remove('hidden');
+                dataArray = sendData;
+                currentPageSend = 1;
+            } else if (tab === 'order') {
+                tabOrderBtn.classList.add('tab-active');
+                tabOrderBtn.classList.remove('tab-inactive');
+                contentOrder.classList.remove('hidden');
+                dataArray = orderData;
+                currentPageOrder = 1;
+            }
+
+            if (dataArray && dataArray.length === 0) { 
+                loadData(tab);
+            } else if (dataArray) { 
+                renderTable(tab);
+            } else { 
+                loadData(tab);
+            }
+        }
+        
+        function handleFormFileSelect(event) { 
+            const selectedFiles = event.target.files;
+            if (!selectedFiles.length) return;
+
+            Array.from(selectedFiles).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const fileData = {
+                        name: file.name,
+                        type: file.type,
+                        size: file.size,
+                        data: e.target.result 
+                    };
+                    currentFilesArray.push(fileData);
+                    updateFormFileList();
+                };
+                reader.readAsDataURL(file);
+            });
+            event.target.value = ''; 
+        }
+        
+        function updateFormFileList() { 
+            formFileListContainer.innerHTML = ''; 
+            currentFilesArray.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item bg-slate-200 p-2 rounded text-sm';
+                
+                const fileNameSpan = document.createElement('span');
+                fileNameSpan.className = 'file-name';
+                fileNameSpan.textContent = file.name;
+                
+                const removeButton = document.createElement('span');
+                removeButton.className = 'remove-file ml-2 text-red-500 hover:text-red-800';
+                removeButton.innerHTML = '<i class="fas fa-times-circle"></i>';
+                removeButton.title = 'ลบไฟล์นี้';
+                removeButton.addEventListener('click', () => {
+                    currentFilesArray.splice(index, 1); 
+                    updateFormFileList(); 
+                });
+                
+                fileItem.appendChild(fileNameSpan);
+                fileItem.appendChild(removeButton);
+                formFileListContainer.appendChild(fileItem);
+            });
+            formFilesDataInput.value = JSON.stringify(currentFilesArray.map(f => ({ name: f.name, type: f.type, data: f.data.split(',')[1] })));
+        }
+        
+        async function handleFormSubmitEvent(event) { 
+            event.preventDefault(); 
+            
+            const type = formTypeInput.value;
+            const docNumberSuffixValue = formDocNumberSuffixInput.value.trim();
+            let finalConstructedDocNumber;
+
+            if (!docNumberSuffixValue) { 
+                let fieldNamePrompt = labelDocNumber.textContent || "เลขที่เอกสาร";
+                if (type === 'send') fieldNamePrompt = "เลขที่นำส่ง (ส่วนต่อท้าย)";
+                showNotification(`กรุณากรอก "${fieldNamePrompt}"`, 'error');
+                formDocNumberSuffixInput.focus();
+                return; 
+            }
+
+            if (type === 'send') {
+                finalConstructedDocNumber = SEND_DOC_NUMBER_PREFIX + docNumberSuffixValue;
+            } else { 
+                finalConstructedDocNumber = docNumberSuffixValue;
+            }
+            formFullDocNumberInput.value = finalConstructedDocNumber; 
+
+            if (!formFullDocNumberInput.value.trim()) { 
+                 showNotification(`"เลขที่เอกสาร" ที่สมบูรณ์ไม่สามารถเป็นค่าว่างได้`, 'error');
+                 formDocNumberSuffixInput.focus(); 
+                 return;
+            }
+            
+            hideFormModal(); 
+
+            const loadingIndicator = type === 'receive' ? receiveLoading : (type === 'send' ? sendLoading : orderLoading);
+            if(loadingIndicator) loadingIndicator.classList.remove('hidden');
+            
+            const formData = new FormData(documentForm); 
+            const dataPayload = {};
+            for (const [key, value] of formData.entries()) {
+                 if (key === 'docDate') { 
+                    dataPayload[type === 'receive' ? 'receiveDate' : (type === 'send' ? 'sendDate' : 'orderDate')] = value;
+                } else if (key !== 'filesData' && key !== 'docNumberSuffix') { 
+                    dataPayload[key] = value;
+                }
+            }
+            dataPayload.docNumber = formFullDocNumberInput.value; 
+            dataPayload.type = type; 
+            
+            dataPayload.files = JSON.parse(formFilesDataInput.value || "[]"); 
+            dataPayload.action = 'add'; 
+            
+            const letterDateInput = dataPayload.letterDate; 
+            if (letterDateInput && (type === 'receive' || type === 'send')) { 
+                const dateObj = new Date(letterDateInput);
+                const thaiYear = dateObj.getFullYear() + 543;
+                const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+                const day = dateObj.getDate().toString().padStart(2, '0');
+                dataPayload.letterDateThai = `${day}/${month}/${thaiYear}`;
+            }
+            
+            console.log("Final dataPayload being sent to server:", JSON.stringify(dataPayload, null, 2));
+
+            try {
+                const response = await sendDataToServer(dataPayload);
+                 if (response.success) {
+                    showNotification('บันทึกข้อมูลสำเร็จ', 'success');
+                    const returnedItem = response.data.item; 
+                    if (returnedItem) {
+                        const localItem = { 
+                            ...returnedItem,
+                            displayDate: returnedItem.receiveDate || returnedItem.sendDate || returnedItem.orderDate || returnedItem.displayDate 
+                        };
+                        let dataArray;
+                        if (type === 'receive') { dataArray = receiveData; currentPageReceive = 1; }
+                        else if (type === 'send') { dataArray = sendData; currentPageSend = 1; }
+                        else { dataArray = orderData; currentPageOrder = 1; }
+                        
+                        dataArray.unshift(localItem); 
+                        renderTable(type); 
+                    } else {
+                        loadData(type); 
+                    }
+                } else {
+                    showNotification('เกิดข้อผิดพลาด: ' + (response.message || response.error || 'Unknown server error'), 'error');
+                }
+            } catch (error) {
+                 showNotification('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + error.message, 'error');
+            } finally {
+                if(loadingIndicator) loadingIndicator.classList.add('hidden');
+                resetDocumentForm(); 
+            }
+        }
+        
+        async function sendDataToServer(payload) {
+            try {
+                const params = new URLSearchParams();
+                for (const key in payload) {
+                    if (key === 'files') {
+                        params.append(key, JSON.stringify(payload[key]));
+                    } else {
+                        params.append(key, payload[key]);
+                    }
+                }
+                params.append('sheetId', SHEET_ID);
+                params.append('folderId', FOLDER_ID);
+
+                const response = await fetch(`${SCRIPT_URL}?${params.toString()}`, {
+                    method: 'GET', 
+                    redirect: 'follow'
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error sending data to server:', error);
+                throw error;
+            }
+        }
+        
+        function loadData(type) {
+            const loading = type === 'receive' ? receiveLoading : (type === 'send' ? sendLoading : orderLoading);
+            const tableBody = type === 'receive' ? receiveTableBody : (type === 'send' ? sendTableBody : orderTableBody);
+            const noDataEl = type === 'receive' ? receiveNoData : (type === 'send' ? sendNoData : orderNoData);
+            
+            if (type === 'receive') currentPageReceive = 1; 
+            else if (type === 'send') currentPageSend = 1;
+            else if (type === 'order') currentPageOrder = 1;
+
+
+            if(loading) loading.classList.remove('hidden');
+            if(tableBody) tableBody.innerHTML = '';
+            if(noDataEl) noDataEl.classList.add('hidden');
+            
+            const params = new URLSearchParams({
+                action: 'get',
+                type: type,
+                sheetId: SHEET_ID
+            });
+            
+            fetch(`${SCRIPT_URL}?${params.toString()}`)
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(result => {
+                    if (result.success) {
+                        const dataArray = result.data || [];
+                        if (type === 'receive') receiveData = dataArray;
+                        else if (type === 'send') sendData = dataArray;
+                        else if (type === 'order') orderData = dataArray;
+                        
+                        renderTable(type);
+                    } else {
+                        showNotification('เกิดข้อผิดพลาดในการโหลดข้อมูล: ' + (result.message || result.error), 'error');
+                        if(noDataEl) noDataEl.classList.remove('hidden');
+                        renderPaginationControls(type, 0);
+                    }
+                })
+                .catch(error => {
+                    showNotification('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + error.message, 'error');
+                    console.error(`Error loading ${type} data:`, error);
+                    if(noDataEl) noDataEl.classList.remove('hidden');
+                    renderPaginationControls(type, 0);
+                })
+                .finally(() => {
+                    if(loading) loading.classList.add('hidden');
+                });
+        }
+        
+        function renderTable(type) {
+            const tableBody = type === 'receive' ? receiveTableBody : (type === 'send' ? sendTableBody : orderTableBody);
+            const noDataEl = type === 'receive' ? receiveNoData : (type === 'send' ? sendNoData : orderNoData);
+            let currentData, currentPage;
+
+            if (type === 'receive') { currentData = receiveData; currentPage = currentPageReceive; }
+            else if (type === 'send') { currentData = sendData; currentPage = currentPageSend; }
+            else if (type === 'order') { currentData = orderData; currentPage = currentPageOrder; }
+            else { return; } 
+            
+            tableBody.innerHTML = '';
+            
+            if (!currentData || currentData.length === 0) {
+                noDataEl.classList.remove('hidden');
+                renderPaginationControls(type, 0);
+                return;
+            }
+            noDataEl.classList.add('hidden');
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedData = currentData.slice(startIndex, endIndex);
+            
+            paginatedData.forEach(item => {
+                const row = tableBody.insertRow();
+                row.className = 'hover:bg-green-50'; 
+                row.dataset.autoId = item.autoId; 
+                
+                const cellDocNumber = row.insertCell();
+                cellDocNumber.textContent = item.docNumber ?? ''; 
+                cellDocNumber.className = 'py-2 px-3 border-b border-slate-200 col-doc-number';
+
+                const cellDate = row.insertCell();
+                cellDate.textContent = item.displayDate ? formatDateForDisplay(item.displayDate) : '-';
+                cellDate.className = 'py-2 px-3 border-b border-slate-200 col-date';
+
+                const cellSubject = row.insertCell();
+                cellSubject.textContent = item.subject || '-';
+                cellSubject.className = 'py-2 px-3 border-b border-slate-200 col-subject';
+                
+                const cellActions = row.insertCell();
+                cellActions.className = 'py-2 px-3 border-b border-slate-200 col-actions';
+
+                const viewButton = document.createElement('button');
+                viewButton.className = 'action-icon view mx-1 text-blue-500 hover:text-blue-700';
+                viewButton.innerHTML = '<i class="fas fa-eye"></i>';
+                viewButton.title = 'ดูรายละเอียด';
+                viewButton.onclick = () => viewItem(item, type);
+                cellActions.appendChild(viewButton);
+
+                const downloadButton = document.createElement('button');
+                downloadButton.className = 'action-icon download mx-1 text-green-600 hover:text-green-800';
+                downloadButton.innerHTML = '<i class="fas fa-download"></i>';
+                downloadButton.title = 'ดาวน์โหลดเอกสาร';
+                if (item.fileUrls && item.fileUrls.length > 0) {
+                    downloadButton.onclick = () => downloadFiles(item.fileUrls);
+                } else {
+                    downloadButton.disabled = true;
+                    downloadButton.classList.add('opacity-50', 'cursor-not-allowed');
+                    downloadButton.title = 'ไม่มีไฟล์เอกสาร';
+                }
+                cellActions.appendChild(downloadButton);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'action-icon delete mx-1 text-red-500 hover:text-red-700';
+                deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                deleteButton.title = 'ลบ';
+                deleteButton.onclick = () => showDeleteModal(item.autoId, type);
+                cellActions.appendChild(deleteButton);
+            });
+            renderPaginationControls(type, currentData.length);
+        }
+
+        function renderPaginationControls(type, totalItems) {
+            let paginationControlsContainer, currentPage;
+            if (type === 'receive') { paginationControlsContainer = receivePaginationControls; currentPage = currentPageReceive; }
+            else if (type === 'send') { paginationControlsContainer = sendPaginationControls; currentPage = currentPageSend; }
+            else if (type === 'order') { paginationControlsContainer = orderPaginationControls; currentPage = currentPageOrder; }
+            else { return; }
+
+            paginationControlsContainer.innerHTML = ''; 
+
+            if (totalItems === 0) return;
+
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const startItem = (currentPage - 1) * itemsPerPage + 1;
+            const endItem = Math.min(startItem + itemsPerPage - 1, totalItems);
+
+            const outerDiv = document.createElement('div');
+            outerDiv.className = 'flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6';
+
+            const mobileDiv = document.createElement('div');
+            mobileDiv.className = 'flex flex-1 justify-between sm:hidden';
+            const prevMobileLink = document.createElement('a');
+            prevMobileLink.href = '#';
+            prevMobileLink.className = 'relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50';
+            prevMobileLink.textContent = 'Previous';
+            if (currentPage === 1) {
+                prevMobileLink.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                prevMobileLink.onclick = (e) => { e.preventDefault(); changePage(type, currentPage - 1); };
+            }
+            const nextMobileLink = document.createElement('a');
+            nextMobileLink.href = '#';
+            nextMobileLink.className = 'relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50';
+            nextMobileLink.textContent = 'Next';
+            if (currentPage === totalPages) {
+                nextMobileLink.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                nextMobileLink.onclick = (e) => { e.preventDefault(); changePage(type, currentPage + 1); };
+            }
+            mobileDiv.appendChild(prevMobileLink);
+            mobileDiv.appendChild(nextMobileLink);
+            outerDiv.appendChild(mobileDiv);
+
+            const desktopDiv = document.createElement('div');
+            desktopDiv.className = 'hidden sm:flex sm:flex-1 sm:items-center sm:justify-between';
+            
+            const infoDiv = document.createElement('div');
+            const infoP = document.createElement('p');
+            infoP.className = 'text-sm text-gray-700';
+            infoP.innerHTML = `Showing <span class="font-medium">${startItem}</span> to <span class="font-medium">${endItem}</span> of <span class="font-medium">${totalItems}</span> results`;
+            infoDiv.appendChild(infoP);
+            desktopDiv.appendChild(infoDiv);
+
+            const navDiv = document.createElement('div');
+            const nav = document.createElement('nav');
+            nav.className = 'isolate inline-flex -space-x-px rounded-md shadow-sm';
+            nav.setAttribute('aria-label', 'Pagination');
+
+            const prevDesktopLink = document.createElement('a');
+            prevDesktopLink.href = '#';
+            prevDesktopLink.className = 'relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0';
+            prevDesktopLink.innerHTML = `<span class="sr-only">Previous</span><svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" /></svg>`;
+            if (currentPage === 1) {
+                prevDesktopLink.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                prevDesktopLink.onclick = (e) => { e.preventDefault(); changePage(type, currentPage - 1); };
+            }
+            nav.appendChild(prevDesktopLink);
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (totalPages <= 7 || i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    const pageLink = document.createElement('a');
+                    pageLink.href = '#';
+                    pageLink.className = `relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 focus:outline-offset-0 ${i === currentPage ? 'pagination-active' : 'pagination-default'}`;
+                    pageLink.textContent = i;
+                    if (i === currentPage) {
+                        pageLink.setAttribute('aria-current', 'page');
+                    } else {
+                        pageLink.onclick = (e) => { e.preventDefault(); changePage(type, i); };
+                    }
+                    nav.appendChild(pageLink);
+                } else if ( (i === currentPage - 2 && currentPage > 3) || (i === currentPage + 2 && currentPage < totalPages - 2) ) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0';
+                    ellipsis.textContent = '...';
+                    nav.appendChild(ellipsis);
+                }
+            }
+
+            const nextDesktopLink = document.createElement('a');
+            nextDesktopLink.href = '#';
+            nextDesktopLink.className = 'relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0';
+            nextDesktopLink.innerHTML = `<span class="sr-only">Next</span><svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" /></svg>`;
+            if (currentPage === totalPages) {
+                nextDesktopLink.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                nextDesktopLink.onclick = (e) => { e.preventDefault(); changePage(type, currentPage + 1); };
+            }
+            nav.appendChild(nextDesktopLink);
+            
+            navDiv.appendChild(nav);
+            desktopDiv.appendChild(navDiv);
+            outerDiv.appendChild(desktopDiv);
+            paginationControlsContainer.appendChild(outerDiv);
+        }
+
+        function changePage(type, pageNumber) {
+            if (type === 'receive') currentPageReceive = pageNumber;
+            else if (type === 'send') currentPageSend = pageNumber;
+            else if (type === 'order') currentPageOrder = pageNumber;
+            renderTable(type);
+        }
+        
+        function viewItem(item, type) {
+            let modalTitleText = '';
+            let docNumberLabel = '';
+            let docDateLabel = '';
+
+            if (type === 'receive') {
+                modalTitleText = 'รายละเอียดหนังสือรับ';
+                docNumberLabel = 'เลขที่รับ';
+                docDateLabel = 'วันที่รับ';
+            } else if (type === 'send') {
+                modalTitleText = 'รายละเอียดหนังสือนำส่ง';
+                docNumberLabel = 'เลขที่นำส่ง';
+                docDateLabel = 'วันที่นำส่ง';
+            } else if (type === 'order') {
+                modalTitleText = 'รายละเอียดคำสั่ง';
+                docNumberLabel = 'เลขที่คำสั่ง';
+                docDateLabel = 'วันที่ออกคำสั่ง';
+            }
+            viewModalTitle.textContent = modalTitleText;
+            
+            const docDateFormatted = item.displayDate ? formatDateForDisplay(item.displayDate) : '-';
+            const letterDateCE = item.letterDate; 
+            const letterDateFormattedForDisplay = letterDateCE ? formatDateForDisplay(letterDateCE) : '-';
+
+            let content = `
+                <div class="space-y-3 text-sm text-gray-700">
+                    <p><strong class="text-green-700">${docNumberLabel}:</strong> ${item.docNumber || '-'}</p>
+                    <p><strong class="text-green-700">${docDateLabel}:</strong> ${docDateFormatted}</p>
+                    <hr class="my-3">`;
+            
+            if (type === 'receive' || type === 'send') {
+                content += `
+                    <p><strong class="text-green-700">เลขที่หนังสือ (อ้างอิง):</strong> ${item.letterNumber || '-'}</p>
+                    <p><strong class="text-green-700">ลงวันที่ (หนังสืออ้างอิง พ.ศ.):</strong> ${letterDateFormattedForDisplay}</p>
+                    <p><strong class="text-green-700">จาก:</strong> ${item.from || '-'}</p>
+                    <p><strong class="text-green-700">ถึง:</strong> ${item.to || '-'}</p>
+                    <hr class="my-3">`;
+            } else if (type === 'order') {
+                 content += `<p><strong class="text-green-700">ผู้ลงนาม:</strong> ${item.signatory || '-'}</p><hr class="my-3">`;
+            }
+
+            content += `<p><strong class="text-green-700">เรื่อง:</strong> ${item.subject || '-'}</p></div>`;
+            
+            if (item.fileUrls && item.fileUrls.length > 0) {
+                content += `<div class="mt-4"><p class="font-semibold mb-2 text-green-700">เอกสารแนบ:</p><ul class="list-disc list-inside space-y-1">`;
+                item.fileUrls.forEach((fileUrl, index) => {
+                    const fileName = (item.fileNames && item.fileNames[index]) ? item.fileNames[index] : fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
+                    content += `<li><a href="${fileUrl}" target="_blank" class="text-amber-600 hover:underline hover:text-amber-700">${fileName}</a></li>`;
+                });
+                content += `</ul></div>`;
+            } else {
+                content += `<p class="mt-4 text-gray-500">ไม่มีเอกสารแนบ</p>`;
+            }
+            
+            viewModalContent.innerHTML = content;
+            showViewModal();
+        }
+        
+        function showDeleteModal(id, type) {
+            deleteItemId = id;
+            deleteItemType = type;
+            deleteModal.classList.remove('hidden');
+        }
+        
+        function hideDeleteModal() {
+            deleteModal.classList.add('hidden');
+            deleteItemId = null;
+            deleteItemType = null;
+        }
+        
+        async function confirmDeleteItem() {
+            if (!deleteItemId || !deleteItemType) {
+                hideDeleteModal();
+                return;
+            }
+            
+            const loadingIndicator = deleteItemType === 'receive' ? receiveLoading : (deleteItemType === 'send' ? sendLoading : orderLoading);
+            const originalButtonText = confirmDeleteBtn.innerHTML;
+
+            confirmDeleteBtn.disabled = true;
+            confirmDeleteBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>กำลังลบ...`;
+            if(loadingIndicator) loadingIndicator.classList.remove('hidden');
+            
+            const params = new URLSearchParams({
+                action: 'delete',
+                type: deleteItemType,
+                autoId: deleteItemId,
+                sheetId: SHEET_ID
+            });
+            
+            try {
+                const response = await fetch(`${SCRIPT_URL}?${params.toString()}`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    showNotification('ลบข้อมูลสำเร็จ', 'success');
+                    let dataArray;
+                    if (deleteItemType === 'receive') dataArray = receiveData;
+                    else if (deleteItemType === 'send') dataArray = sendData;
+                    else dataArray = orderData;
+
+                    const index = dataArray.findIndex(i => i.autoId === deleteItemId);
+                    if (index !== -1) {
+                        dataArray.splice(index, 1);
+                    }
+                    
+                    const totalPages = Math.ceil(dataArray.length / itemsPerPage);
+                    if (deleteItemType === 'receive' && currentPageReceive > totalPages && totalPages > 0) currentPageReceive = totalPages;
+                    else if (deleteItemType === 'send' && currentPageSend > totalPages && totalPages > 0) currentPageSend = totalPages;
+                    else if (deleteItemType === 'order' && currentPageOrder > totalPages && totalPages > 0) currentPageOrder = totalPages;
+                    
+                    renderTable(deleteItemType); 
+                } else {
+                    showNotification('เกิดข้อผิดพลาดในการลบ: ' + (result.message || result.error), 'error');
+                }
+            } catch (error) {
+                showNotification('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + error.message, 'error');
+            } finally {
+                if(loadingIndicator) loadingIndicator.classList.add('hidden');
+                hideDeleteModal();
+                confirmDeleteBtn.disabled = false;
+                confirmDeleteBtn.innerHTML = '<i class="fas fa-trash-alt mr-2"></i>ลบรายการ';
+            }
+        }
+        
+        function showViewModal() {
+            viewModal.classList.remove('hidden');
+        }
+        
+        function hideViewModal() {
+            viewModal.classList.add('hidden');
+        }
+        
+        function resetDocumentForm() { 
+            documentForm.reset();
+            const today = new Date().toISOString().split('T')[0];
+            const type = formTypeInput.value; 
+            if (type === 'receive') formDocDateInput.name = 'receiveDate';
+            else if (type === 'send') formDocDateInput.name = 'sendDate';
+            else if (type === 'order') formDocDateInput.name = 'orderDate';
+            
+            formDocDateInput.value = today;
+            formLetterDateInput.value = today;
+            formDocNumberSuffixInput.value = ''; 
+            formFullDocNumberInput.value = '';   
+            
+            currentFilesArray = []; 
+            updateFormFileList(); 
+        }
+        
+        function downloadFiles(urls) {
+            if (!urls || urls.length === 0) {
+                showNotification('ไม่พบไฟล์สำหรับดาวน์โหลด', 'error');
+                return;
+            }
+            
+            if (urls.length === 1) {
+                window.open(urls[0], '_blank');
+            } else {
+                viewModalTitle.textContent = 'ดาวน์โหลดเอกสารแนบ';
+                let filesHtml = '<ul class="list-disc list-inside space-y-1">';
+                urls.forEach(url => {
+                    const fileName = url.substring(url.lastIndexOf('/') + 1);
+                    filesHtml += `<li><a href="${url}" target="_blank" class="text-amber-600 hover:underline hover:text-amber-700">${fileName}</a></li>`;
+                });
+                filesHtml += '</ul>';
+                viewModalContent.innerHTML = filesHtml;
+                showViewModal();
+            }
+        }
+        
+        function formatDateForDisplay(dateString) {
+            if (!dateString) return '-';
+            try {
+                const dateObj = new Date(dateString); 
+                if (isNaN(dateObj.getTime())) { 
+                    console.warn("Invalid date string for formatting:", dateString);
+                    return dateString; 
+                }
+                const day = dateObj.getDate().toString().padStart(2, '0');
+                const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+                let year = dateObj.getFullYear();
+                year += 543; 
+                return `${day}/${month}/${year}`;
+            } catch (e) {
+                console.error("Error in formatDateForDisplay:", e, "Input:", dateString);
+                return dateString;
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            notification.textContent = message;
+            notification.className = 'notification'; 
+            notification.classList.add(type); 
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function exportToExcel(type) {
+            console.log("Export to Excel for:", type);
+            let dataToExport;
+            let title = "";
+            let headers = [];
+
+            if (type === 'receive') { 
+                dataToExport = receiveData; 
+                title = "ทะเบียนคุมหนังสือรับ";
+                headers = ["เลขที่รับ", "วันที่รับ", "เรื่อง", "จาก", "ถึง", "เลขที่อ้างอิง", "ลงวันที่อ้างอิง (พ.ศ.)"];
+            } else if (type === 'send') { 
+                dataToExport = sendData; 
+                title = "ทะเบียนคุมหนังสือนำส่ง";
+                headers = ["เลขที่นำส่ง", "วันที่นำส่ง", "เรื่อง", "จาก", "ถึง", "เลขที่อ้างอิง", "ลงวันที่อ้างอิง (พ.ศ.)"];
+            } else if (type === 'order') { 
+                dataToExport = orderData; 
+                title = "ทะเบียนคุมเลขที่คำสั่ง";
+                headers = ["เลขที่คำสั่ง", "วันที่ออกคำสั่ง", "เรื่อง", "ผู้ลงนาม"];
+            } else { 
+                showNotification('ประเภทข้อมูลไม่ถูกต้องสำหรับ Export', 'error'); 
+                return; 
+            }
+
+
+            if (!dataToExport || dataToExport.length === 0) { 
+                showNotification('ไม่มีข้อมูลสำหรับ Export เป็น Excel', 'info'); 
+                return; 
+            }
+
+            showNotification(`กำลังเตรียมดาวน์โหลด Excel สำหรับ ${title}...`, 'info');
+            
+            const dataForSheet = dataToExport.map(item => {
+                let row = {};
+                if (type === 'receive' || type === 'send') {
+                    row[headers[0]] = item.docNumber;
+                    row[headers[1]] = formatDateForDisplay(item.displayDate);
+                    row[headers[2]] = item.subject;
+                    row[headers[3]] = item.from;
+                    row[headers[4]] = item.to;
+                    row[headers[5]] = item.letterNumber;
+                    row[headers[6]] = item.letterDate ? formatDateForDisplay(item.letterDate) : '-';
+                } else if (type === 'order') {
+                    row[headers[0]] = item.docNumber;
+                    row[headers[1]] = formatDateForDisplay(item.displayDate);
+                    row[headers[2]] = item.subject;
+                    row[headers[3]] = item.signatory;
+                }
+                return row;
+            });
+            
+            const titleRow = {};
+            titleRow[headers[0]] = title; 
+            for(let i = 1; i < headers.length; i++) { titleRow[headers[i]] = "";} 
+
+
+            try {
+                const worksheet = XLSX.utils.json_to_sheet([titleRow, ...dataForSheet], {header: headers, skipHeader: false});
+                
+                if (headers.length > 0) {
+                    const mergeRange = { s: { r: 0, c: 0 }, e: { r: 0, c: headers.length - 1 } }; 
+                    if (!worksheet['!merges']) worksheet['!merges'] = [];
+                    worksheet['!merges'].push(mergeRange);
+                }
+
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, title); 
+                
+                const filename = `${type}_${title.replace(/[\s/]+/g, '_')}_${new Date().toISOString().slice(0,10)}.xlsx`;
+                XLSX.writeFile(workbook, filename);
+                showNotification('ดาวน์โหลด Excel สำเร็จ!', 'success');
+            } catch (error) {
+                console.error("Error exporting to Excel:", error);
+                showNotification('เกิดข้อผิดพลาดในการสร้างไฟล์ Excel', 'error');
+            }
+        }
+        
     </script>
 </body>
 </html>
