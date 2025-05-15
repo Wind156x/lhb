@@ -1,34 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-    <title>My Web App</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Embedded Google Web App</title>
     <style>
-        /* CSS สำหรับซ่อนแถบ header ของ Google Apps Script และปรับขนาด iframe */
+        /* CSS สำหรับการจัดหน้าและซ่อนแถบ header ของ Google Apps Script */
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
-            overflow: hidden; /* ป้องกัน scrollbar ที่ไม่จำเป็นบน body */
+            overflow: hidden; /* ป้องกัน scrollbar ที่ไม่จำเป็นบน body/html */
+            background-color: #f0f0f0; /* สีพื้นหลังเผื่อกรณี iframe โหลดช้า */
         }
+
         .iframe-container {
-            width: 100%;
-            height: 100vh; /* ให้ iframe สูงเต็ม viewport */
-            overflow: hidden;
-            position: relative;
+            width: 100vw; /* กว้างเต็ม viewport width */
+            height: 100vh; /* สูงเต็ม viewport height */
+            overflow: hidden; /* สำคัญ: ซ่อนส่วนของ iframe ที่ล้นออกไป */
+            position: relative; /* เพื่อให้การจัดตำแหน่ง absolute ของ iframe อ้างอิงกับ container นี้ */
         }
+
         .iframe-container iframe {
-            border: none; /* ลบขอบ iframe */
+            border: none; /* ลบขอบของ iframe */
             width: 100%;
-            height: calc(100% + 40px); /* เพิ่มความสูงของ iframe เพื่อให้แถบ header ถูกดันออกไปนอก viewport (ปรับค่า 40px ตามความสูงจริงของแถบ) */
+            /* * เพิ่มความสูงของ iframe มากกว่า 100% ของ container
+             * เพื่อให้มีพื้นที่สำหรับ "ดัน" แถบ header ขึ้นไปซ่อน
+             * ค่า 40px คือความสูงโดยประมาณของแถบ header, อาจต้องปรับค่านี้
+             */
+            height: calc(100% + 40px);
             position: absolute;
-            top: -40px; /* เลื่อน iframe ขึ้นเพื่อซ่อนแถบ header (ปรับค่า 40px ตามความสูงจริงของแถบ) */
+            /*
+             * เลื่อน iframe ขึ้นไปด้านบน เพื่อให้แถบ header (สมมติว่าสูง 40px)
+             * ถูกซ่อนอยู่นอกพื้นที่แสดงผลของ .iframe-container
+             * ค่า -40px ควรตรงกับส่วนที่เพิ่มเข้าไปใน height
+             */
+            top: -40px;
             left: 0;
         }
     </style>
 </head>
 <body>
     <div class="iframe-container">
-        <iframe src="https://script.google.com/macros/s/AKfycbwHUGwWSBRE_CkyMkwnvnD1hwfSp_HhfJq5sY0JGQ7KDl1upyL7-OrFKISMFigKSQiP9w/exec"></iframe>
-    </div>
+        <iframe src="https://script.google.com/macros/s/AKfycbwHUGwWSBRE_CkyMkwnvnD1hwfSp_HhfJq5sY0JGQ7KDl1upyL7-OrFKISMFigKSQiP9w/exec"
+                allowfullscreen></iframe>
+                </div>
+
+    <script>
+        // ตัวอย่าง: log เมื่อ iframe โหลดเสร็จ (ถ้าต้องการ)
+        // const iframe = document.querySelector('.iframe-container iframe');
+        // iframe.onload = function() {
+        //     console.log('Embedded Google Apps Script has loaded.');
+        // };
+    </script>
 </body>
 </html>
