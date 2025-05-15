@@ -1,11 +1,34 @@
 <!DOCTYPE html>
-
 <html>
-   <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-      <base target="_top">
-   </head>
-   <body>
-      <iframe style="position: absolute;top: 0;left: 0;width: 100%;height: 100%;border: 0;" src="https://script.google.com/macros/s/AKfycbwHUGwWSBRE_CkyMkwnvnD1hwfSp_HhfJq5sY0JGQ7KDl1upyL7-OrFKISMFigKSQiP9w/exec"></iframe>
-   </body>
+<head>
+    <title>My Web App</title>
+    <style>
+        /* CSS สำหรับซ่อนแถบ header ของ Google Apps Script และปรับขนาด iframe */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden; /* ป้องกัน scrollbar ที่ไม่จำเป็นบน body */
+        }
+        .iframe-container {
+            width: 100%;
+            height: 100vh; /* ให้ iframe สูงเต็ม viewport */
+            overflow: hidden;
+            position: relative;
+        }
+        .iframe-container iframe {
+            border: none; /* ลบขอบ iframe */
+            width: 100%;
+            height: calc(100% + 40px); /* เพิ่มความสูงของ iframe เพื่อให้แถบ header ถูกดันออกไปนอก viewport (ปรับค่า 40px ตามความสูงจริงของแถบ) */
+            position: absolute;
+            top: -40px; /* เลื่อน iframe ขึ้นเพื่อซ่อนแถบ header (ปรับค่า 40px ตามความสูงจริงของแถบ) */
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="iframe-container">
+        <iframe src="YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL"></iframe>
+    </div>
+</body>
 </html>
