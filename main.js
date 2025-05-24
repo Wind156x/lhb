@@ -712,19 +712,12 @@ async function handleChangePassword() {
     }
 
     try {
-        // Firebase Authentication ไม่ได้ให้ API สำหรับตรวจสอบรหัสผ่านปัจจุบันโดยตรง
-        // วิธีที่ปลอดภัยคือให้ผู้ใช้ Re-authenticate ก่อนเปลี่ยนรหัสผ่าน
-        // แต่สำหรับตัวอย่างนี้จะสมมติว่าผู้ใช้ได้ยืนยันตัวตนแล้ว
-        // ในแอปจริงควรใช้ reauthenticateWithCredential
-        
-        // เนื่องจากไม่มีการเก็บรหัสผ่านใน Firestore เราจะสมมติว่าถ้าผู้ใช้ล็อกอินอยู่
-        // และเป็นผู้ใช้ที่ถูกต้อง ก็สามารถเปลี่ยนรหัสผ่านได้
-        // (ในแอปจริงต้องใช้ Firebase Auth API สำหรับเปลี่ยนรหัสผ่าน)
+
         
         // ตัวอย่าง: ถ้าใช้ Email/Password Auth
-        // const credential = EmailAuthProvider.credential(auth.currentUser.email, currentPass);
-        // await reauthenticateWithCredential(auth.currentUser, credential);
-        // await updatePassword(auth.currentUser, newPass);
+        const credential = EmailAuthProvider.credential(auth.currentUser.email, currentPass);
+        await reauthenticateWithCredential(auth.currentUser, credential);
+        await updatePassword(auth.currentUser, newPass);
 
         showToast('เปลี่ยนรหัสผ่านสำเร็จ! (ฟังก์ชันนี้ต้องเชื่อมต่อกับ Firebase Auth API จริง)', 'success');
         closeModal(changePasswordModal);
