@@ -115,7 +115,7 @@
                     <select id="savings-class-filter" class="ios-select w-full mb-3">
                         <option value="all">ทุกห้องเรียน</option>
                     </select>
-                    <button id="add-new-saving-btn" class="ios-button w-full text-sm py-2 px-3 viewer-hide">บันทึกการออมใหม่</button>
+                    <button id="add-new-saving-btn" class="ios-button w-full text-sm py-2 px-3 admin-only-item">บันทึกการออมใหม่</button>
                 </div>
                 <div class="ios-card mb-4">
                     <div class="p-4 border-b border-gray-100">
@@ -146,7 +146,7 @@
                     <select id="health-class-filter" class="ios-select w-full mb-3">
                         <option value="all">ทุกห้องเรียน</option>
                     </select>
-                    <button id="add-new-health-record-btn" class="ios-button w-full text-sm py-2 px-3 viewer-hide">บันทึกสุขภาพใหม่</button>
+                    <button id="add-new-health-record-btn" class="ios-button w-full text-sm py-2 px-3 admin-only-item">บันทึกสุขภาพใหม่</button>
                 </div>
                 <div class="ios-card mb-4">
                      <div class="p-4 border-b border-gray-100">
@@ -202,7 +202,7 @@
                         
                         <div class="flex justify-between items-center mb-3">
                             <div class="text-sm text-gray-500">วันที่: <span id="report-date" class="font-medium"></span></div>
-                            <button id="export-csv-btn" class="flex items-center text-sm text-green-600 font-medium viewer-hide">
+                            <button id="export-csv-btn" class="flex items-center text-sm text-green-600 font-medium admin-only-item">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                 </svg>
@@ -249,22 +249,22 @@
                             </div>
                         </div>
                          <div class="space-y-2 mt-3">
-                            <button id="change-password-btn" class="ios-button w-full ios-button-gray viewer-hide">เปลี่ยนรหัสผ่าน</button>
+                            <button id="change-password-btn" class="ios-button w-full ios-button-gray admin-only-item">เปลี่ยนรหัสผ่าน</button>
                         </div>
                     </div>
                     
-                    <div class="ios-card mb-4 hidden viewer-hide" >
+                    <div class="ios-card mb-4 admin-only-item" >
                         <div class="p-4 border-b border-gray-100">
                             <h2 class="text-lg font-semibold text-gray-800">ข้อมูลและการรายงาน</h2>
                         </div>
                          <div class="p-4 flex flex-col space-y-3">
                             <button id="show-history-btn" class="ios-button w-full ios-button-gray">ดูประวัติการเข้าเรียน</button>
                             <button id="show-report-btn" class="ios-button w-full ios-button-gray">ดูรายงาน</button>
-                            <button id="manage-students-by-teacher-btn" class="ios-button w-full ios-button-gray viewer-hide">จัดการข้อมูลนักเรียน</button>
+                            <button id="manage-students-by-teacher-btn" class="ios-button w-full ios-button-gray admin-only-item">จัดการข้อมูลนักเรียน</button>
                         </div>
                     </div>
 
-                    <div class="ios-card mb-4 admin-hide user-hide" >
+                    <div class="ios-card mb-4 viewer-only-item" >
                         <div class="p-4 border-b border-gray-100">
                             <h2 class="text-lg font-semibold text-gray-800">การขอรหัสผ่านผู้ใช้</h2>
                         </div>
@@ -291,16 +291,16 @@
                         </div>
                     </div>
 
-                    <div id="admin-settings-section" class="hidden viewer-hide">
+                    <div id="admin-settings-section" class="hidden">
                          <div class="ios-card mb-4">
                             <div class="p-4 border-b border-gray-100">
                                 <h2 class="text-lg font-semibold text-gray-800">จัดการข้อมูลนักเรียน</h2>
                             </div>
                             <div class="p-4 flex flex-col space-y-3">
-                                <button id="legacy-add-student-btn" class="ios-button w-full ios-button-gray">เพิ่มนักเรียนใหม่ (Legacy)</button> <!-- ID changed -->
-                                <button id="legacy-import-student-btn" class="ios-button w-full ios-button-gray">นำเข้าข้อมูลนักเรียน (Legacy)</button> <!-- ID changed -->
-                                <button id="legacy-download-template-btn" class="ios-button w-full ios-button-gray">ดาวน์โหลดเทมเพลต (Legacy)</button> <!-- ID changed -->
-                                <button id="delete-all-students-btn" class="ios-button w-full text-red-600 viewer-hide">ลบรายชื่อนักเรียนทั้งหมด</button>
+                                <button id="legacy-add-student-btn" class="ios-button w-full ios-button-gray admin-only-item">เพิ่มนักเรียนใหม่ (Legacy)</button> <!-- ID changed -->
+                                <button id="legacy-import-student-btn" class="ios-button w-full ios-button-gray admin-only-item">นำเข้าข้อมูลนักเรียน (Legacy)</button> <!-- ID changed -->
+                                <button id="legacy-download-template-btn" class="ios-button w-full ios-button-gray admin-only-item">ดาวน์โหลดเทมเพลต (Legacy)</button> <!-- ID changed -->
+                                <button id="delete-all-students-btn" class="ios-button w-full text-red-600 admin-only-item">ลบรายชื่อนักเรียนทั้งหมด</button>
                             </div>
                         </div>
 
@@ -309,19 +309,19 @@
                                 <h2 class="text-lg font-semibold text-gray-800">จัดการข้อมูลนักเรียน (Admin)</h2>
                             </div>
                             <div class="p-4 flex flex-col space-y-3">
-                                <button id="add-student-btn" class="ios-button w-full ios-button-gray flex items-center justify-center viewer-hide">
+                                <button id="add-student-btn" class="ios-button w-full ios-button-gray flex items-center justify-center admin-only-item">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                                     </svg>
                                     เพิ่มนักเรียนใหม่
                                 </button>
-                                <button id="import-student-btn" class="ios-button w-full ios-button-gray flex items-center justify-center viewer-hide">
+                                <button id="import-student-btn" class="ios-button w-full ios-button-gray flex items-center justify-center admin-only-item">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                                     </svg>
                                     นำเข้าข้อมูลนักเรียน
                                 </button>
-                                <button id="download-template-btn" class="ios-button w-full ios-button-gray flex items-center justify-center viewer-hide">
+                                <button id="download-template-btn" class="ios-button w-full ios-button-gray flex items-center justify-center admin-only-item">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
@@ -335,9 +335,9 @@
                                 <h2 class="text-lg font-semibold text-gray-800">Admin Controls</h2>
                             </div>
                             <div class="p-4 flex flex-col space-y-3">
-                                <button id="manage-users-btn" class="ios-button w-full ios-button-gray viewer-hide">จัดการผู้ใช้งาน</button>
-                                <button id="manage-classes-btn" class="ios-button w-full ios-button-gray viewer-hide">จัดการชั้นเรียน</button>
-                                <button id="open-system-settings-modal-btn" class="ios-button w-full ios-button-gray viewer-hide">ตั้งค่าระบบ</button>
+                                <button id="manage-users-btn" class="ios-button w-full ios-button-gray admin-only-item">จัดการผู้ใช้งาน</button>
+                                <button id="manage-classes-btn" class="ios-button w-full ios-button-gray admin-only-item">จัดการชั้นเรียน</button>
+                                <button id="open-system-settings-modal-btn" class="ios-button w-full ios-button-gray admin-only-item">ตั้งค่าระบบ</button>
                             </div>
                         </div>
 
@@ -345,7 +345,7 @@
                     </div>
                     
                     <div class="mb-4">
-                        <button id="save-profile-btn" class="ios-button w-full viewer-hide">บันทึกข้อมูล</button>
+                        <button id="save-profile-btn" class="ios-button w-full admin-only-item">บันทึกข้อมูล</button>
                     </div>
                 </div> </div>
         </div>
@@ -369,7 +369,7 @@
                 <h4 class="text-md font-semibold text-gray-700 mb-2">รายชื่อผู้ใช้งาน</h4>
                 <div id="user-list-display" class="text-sm text-gray-600 max-h-40 overflow-y-auto mb-4">
                     </div>
-                <button id="add-new-user-btn-main" class="ios-button w-full mt-4 viewer-hide">เพิ่มผู้ใช้งาน</button>
+                <button id="add-new-user-btn-main" class="ios-button w-full mt-4 admin-only-item">เพิ่มผู้ใช้งาน</button>
             </div>
         </div>
         
@@ -402,7 +402,7 @@
                             </div>
                     </div>
                 </div>
-                <button id="save-user-form-btn" class="ios-button w-full mt-4 viewer-hide">บันทึก</button>
+                <button id="save-user-form-btn" class="ios-button w-full mt-4 admin-only-item">บันทึก</button>
             </div>
         </div>
 
@@ -441,7 +441,7 @@
                     <label for="new-class-name-input" class="block text-sm font-medium text-gray-700 mb-1">เพิ่มชั้นเรียนใหม่ (เช่น ม.1/1):</label>
                     <div class="flex space-x-2">
                         <input type="text" id="new-class-name-input" class="ios-input flex-grow" placeholder="ชื่อชั้นเรียน">
-                        <button id="add-new-class-btn" class="ios-button text-sm py-2 px-3 viewer-hide">เพิ่ม</button>
+                        <button id="add-new-class-btn" class="ios-button text-sm py-2 px-3 admin-only-item">เพิ่ม</button>
                     </div>
                 </div>
                 </div>
@@ -518,7 +518,7 @@
                         <option value="">เลือกชั้นเรียน</option>
                         </select>
                     </div>
-                <button id="save-new-student-btn" class="ios-button w-full mt-4 viewer-hide">บันทึกนักเรียน</button>
+                <button id="save-new-student-btn" class="ios-button w-full mt-4 admin-only-item">บันทึกนักเรียน</button>
             </div>
         </div>
 
@@ -540,7 +540,7 @@
                         <option value="female">หญิง</option>
                     </select>
                 </div>
-                <button id="add-student-by-teacher-btn" class="ios-button w-full text-sm py-2 px-3 mb-4 flex items-center justify-center viewer-hide">
+                <button id="add-student-by-teacher-btn" class="ios-button w-full text-sm py-2 px-3 mb-4 flex items-center justify-center admin-only-item">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                     </svg>
@@ -567,7 +567,7 @@
                 </div>
                 <p class="text-sm text-gray-600 mb-2">อัปโหลดไฟล์ CSV/Excel ที่มีข้อมูลนักเรียน</p>
                 <input type="file" id="student-file-input" class="ios-input w-full mb-4" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
-                <button id="confirm-import-student-btn" class="ios-button w-full viewer-hide">นำเข้าข้อมูล</button>
+                <button id="confirm-import-student-btn" class="ios-button w-full admin-only-item">นำเข้าข้อมูล</button>
             </div>
         </div>
 
@@ -631,7 +631,7 @@
                  <div class="mt-4">
                      <button id="open-holiday-settings-modal-btn" class="ios-button w-full ios-button-gray text-sm">จัดการวันหยุดพิเศษ (สำหรับปีที่เลือก)</button>
                  </div>
-                <button id="save-system-settings-btn" class="ios-button w-full mt-6 viewer-hide">บันทึกการตั้งค่าระบบ</button>
+                <button id="save-system-settings-btn" class="ios-button w-full mt-6 admin-only-item">บันทึกการตั้งค่าระบบ</button>
             </div>
         </div>
         
@@ -646,7 +646,7 @@
                 <div class="flex space-x-2 mb-2">
                     <input type="date" id="holiday-date-input" class="ios-input flex-1">
                     <input type="text" id="holiday-description-input" class="ios-input flex-1" placeholder="รายละเอียดวันหยุด">
-                    <button id="add-holiday-btn" class="ios-button px-4 py-2 text-sm viewer-hide">เพิ่ม</button>
+                    <button id="add-holiday-btn" class="ios-button px-4 py-2 text-sm admin-only-item">เพิ่ม</button>
                 </div>
                 <div id="holiday-list-display" class="max-h-60 overflow-y-auto border border-gray-200 rounded-lg p-2 space-y-1">
                     </div>
@@ -655,9 +655,9 @@
                         <input type="checkbox" id="auto-recommend-holidays-toggle" class="form-checkbox h-4 w-4 text-blue-600 rounded">
                         <span class="ml-2 text-sm text-gray-700">เปิดแนะนำอัตโนมัติ</span>
                     </label>
-                    <button id="recommend-holidays-ai-btn" class="ios-button ios-button-gray text-sm viewer-hide">แนะนำวันหยุดด้วย AI</button>
+                    <button id="recommend-holidays-ai-btn" class="ios-button ios-button-gray text-sm admin-only-item">แนะนำวันหยุดด้วย AI</button>
                 </div>
-                <button id="save-holidays-btn" class="ios-button w-full mt-4 viewer-hide">บันทึกวันหยุด</button>
+                <button id="save-holidays-btn" class="ios-button w-full mt-4 admin-only-item">บันทึกวันหยุด</button>
             </div>
         </div>
 
@@ -688,7 +688,7 @@
                     <input type="date" id="saving-date-input" class="ios-input w-full">
                     <input type="number" id="saving-amount-input" class="ios-input w-full" placeholder="จำนวนเงิน (บาท)">
                 </div>
-                <button id="save-new-saving-btn" class="ios-button w-full mt-4 viewer-hide">บันทึกรายการ</button>
+                <button id="save-new-saving-btn" class="ios-button w-full mt-4 admin-only-item">บันทึกรายการ</button>
             </div>
         </div>
 
@@ -723,7 +723,7 @@
                     <input type="number" id="health-height-input" class="ios-input w-full" placeholder="ส่วนสูง (ซม.)">
                     <textarea id="health-notes-input" class="ios-input w-full h-24" placeholder="หมายเหตุเพิ่มเติม"></textarea>
                 </div>
-                <button id="save-new-health-record-btn" class="ios-button w-full mt-4 viewer-hide">บันทึกข้อมูลสุขภาพ</button>
+                <button id="save-new-health-record-btn" class="ios-button w-full mt-4 admin-only-item">บันทึกข้อมูลสุขภาพ</button>
             </div>
         </div>
         
@@ -756,6 +756,20 @@
             </div>
         </div>
 
+    <div class="ios-modal" id="date-picker-modal">
+        <div class="ios-modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">เลือกวันที่</h3>
+                <button class="text-gray-500 close-modal-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            <div class="space-y-3">
+                <input type="date" id="date-picker-input" class="ios-input w-full">
+            </div>
+            <button id="confirm-date-btn" class="ios-button w-full mt-4">ยืนยัน</button>
+        </div>
+    </div>
 
         <div class="fixed-nav-bar">
             <div class="nav-item active" data-page="attendance-page">

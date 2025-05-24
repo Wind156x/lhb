@@ -43,14 +43,8 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
                     // A non-admin user is signed in.
                     teacherProfile.isAdmin = false;
                     teacherProfile.role = 'viewer'; // Set role to viewer for all non-admins
-                    // If teacherProfile.isAdmin was true, it means admin logged out and another (perhaps anonymous) user signed in.
-                    // Or, this could be a regular teacher user in the future.
-                    if (teacherProfile.isAdmin) { // If UI still shows admin, but current user is not admin, reset admin state.
-                         teacherProfile.isAdmin = false;
-                         adminLoginStatusBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg><span>Admin Login</span>';
-                         adminLoginStatusBtn.classList.remove('admin-active');
-                         adminSettingsSection.classList.add('hidden');
-                    }
+                    // The redundant if block was removed.
+                    // updateAdminView() called by initializeAppLogic() will correctly update UI.
                 }
                 initializeAppLogic(); // Call main app logic
             } else {
@@ -70,6 +64,8 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
                 signInAnonymously(auth)
                     .then((anonymousUserCredential) => {
                         userId = anonymousUserCredential.user.uid;
+                        teacherProfile.role = 'viewer'; // Explicitly set role for anonymous user
+                        teacherProfile.isAdmin = false; // Ensure isAdmin is explicitly false
                         console.log('Signed in anonymously with UID:', userId);
                         initializeAppLogic(); // Call main app logic for anonymous user
                     })
@@ -80,6 +76,8 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
                         // to allow the app to at least try to initialize.
                         if (!userId) { // Only set if not already set by a race condition
                             userId = crypto.randomUUID();
+                            teacherProfile.role = 'viewer'; // Explicitly set role for fallback user
+                            teacherProfile.isAdmin = false; // Ensure isAdmin is explicitly false
                             console.warn("Using fallback UUID due to anonymous sign-in error.");
                         }
                         initializeAppLogic();
@@ -125,7 +123,7 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
         const currentDateElement = document.getElementById('current-date');
         const dateSelectorDisplay = document.getElementById('date-selector-display');
         const adminLoginStatusBtn = document.getElementById('admin-login-status-btn');
-        const datePickerInputTrigger = document.getElementById('date-picker-input-trigger'); 
+        // const datePickerInputTrigger = document.getElementById('date-picker-input-trigger'); // Removed unused variable
         const presentStatCard = document.getElementById('present-stat-card');
         const presentCountEl = document.getElementById('present-count');
         const presentPercentEl = document.getElementById('present-percent');
@@ -825,16 +823,78 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
                 if (teacherIdInput) teacherIdInput.setAttribute('readonly', true);
                 if (teacherNameInput) teacherNameInput.setAttribute('readonly', true);
             }
-            // Hide/show .viewer-hide elements
-            document.querySelectorAll('.viewer-hide').forEach(el => {
-                if (teacherProfile.role === 'viewer') {
-                    el.style.display = 'none';
-                } else {
-                    el.style.display = '';
+            
+            const isAdmin = teacherProfile.isAdmin; // or teacherProfile.role === 'admin'
+            const currentRole = teacherProfile.role; // Will be 'admin' or 'viewer'
+
+            // Handle .admin-only-item elements
+            document.querySelectorAll('.admin-only-item').forEach(el => {
+                const isElementAdminOnly = currentRole === 'admin';
+                el.style.display = isElementAdminOnly ? '' : 'none';
+                if (el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
+                    el.disabled = !isElementAdminOnly;
                 }
             });
-            // Only disable write-action buttons for viewer
-            if (teacherProfile.role === 'viewer') {
-                document.querySelectorAll(
-                    '#add-student-btn, #save-new-student-btn, #add-new-class-btn, #save-profile-btn, #save-user-form-btn, #add-new-user-btn-main, #delete-all-students-btn, #import-student-btn, #confirm-import-student-btn, #download-template-btn, #save-system-settings-btn, #add-holiday-btn, #save-holidays-btn, #recommend-holidays-ai-btn, #open-system-settings-modal-btn, #manage-users-btn, #manage-classes-btn, #add-student-by-teacher-btn, #save-new-saving-btn, #add-new-saving-btn, #save-new-health-record-btn, #add-new-health-record-btn, #attendance-modal-mark-all-present, #save-attendance-modal-btn, #change-password-btn, #save-new-password-btn, #export-csv-btn'
-                ).forEach(btn => { if (btn) btn.disabled = true; });
+
+            // Handle .viewer-only-item elements
+            document.querySelectorAll('.viewer-only-item').forEach(el => {
+                const isElementViewerOnly = currentRole === 'viewer';
+                el.style.display = isElementViewerOnly ? '' : 'none';
+                if (el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
+                    el.disabled = !isElementViewerOnly;
+                }
+            });
+            
+            // The old .viewer-hide and .admin-hide loops are removed.
+            // The logic for these classes should be migrated to .admin-only-item or .viewer-only-item in HTML.
+
+            // Review this list: Buttons here should NOT have .admin-only-item or .viewer-only-item if they need separate logic.
+            // If a button is admin-only, it should be tagged with .admin-only-item in HTML and will be handled above.
+            // If a button is viewer-only, it should be tagged with .viewer-only-item in HTML and will be handled above.
+            // This list is for elements that might be visible to multiple roles but disabled for some.
+            // For now, with only 'admin' and 'viewer' roles, elements are either admin-only, viewer-only, or common.
+            // Common elements that need disabling for viewers but are not admin-only (a rare case) would remain here.
+            // Most items from the original list are likely to become .admin-only-item.
+            
+            const commonButtonsToManage = [
+                // Example: '#some-button-visible-to-admin-and-user-but-disabled-for-viewer'
+                // For current roles 'admin'/'viewer', most buttons are either admin-only or common and always enabled.
+                // The change-password-btn might be an example if a 'user' role existed that could use it.
+                // With only admin/viewer, if it's not viewer-only and not admin-only, it's for everyone.
+                // If it's for admin, it's covered by admin-only-item.
+                // Let's assume for now that the specific list of buttons to disable for viewers
+                // will be largely superseded by elements being tagged as .admin-only-item in HTML.
+                // Any button NOT tagged .admin-only-item or .viewer-only-item is considered a common interactive element.
+                // We need to determine which of these common elements should be disabled for viewers.
+                 '#change-password-btn', // Visible to admin (non-viewer), should be enabled for admin.
+                                         // If it were also visible to a 'user' role, it'd be enabled. Disabled for 'viewer'.
+                 '#save-new-password-btn', // Similar to above, part of change password flow.
+                 '#save-profile-btn',      // Should be usable by admin.
+                 // Buttons like #add-new-saving-btn, #add-new-health-record-btn were viewer-hide,
+                 // if they are for admin, they should become admin-only-item.
+                 // If they are for a future 'user' role, they would not be admin-only-item.
+            ];
+
+            if (currentRole === 'viewer') {
+                commonButtonsToManage.forEach(selector => {
+                    const btn = document.querySelector(selector);
+                    if (btn && !btn.classList.contains('admin-only-item') && !btn.classList.contains('viewer-only-item')) {
+                        // Only disable if it's not already handled by admin-only (which would hide/disable it)
+                        // or viewer-only (which would show/enable it).
+                        btn.disabled = true;
+                    }
+                });
+            } else { // Role is admin (or future 'user')
+                commonButtonsToManage.forEach(selector => {
+                    const btn = document.querySelector(selector);
+                    if (btn && !btn.classList.contains('admin-only-item') && !btn.classList.contains('viewer-only-item')) {
+                        btn.disabled = false;
+                    }
+                });
+            }
+            // Note: The original comprehensive list of buttons to disable for viewers is now largely
+            // expected to be handled by HTML elements having the `admin-only-item` class.
+            // The `commonButtonsToManage` list should be refined based on which elements are truly common
+            // but need viewer disabling, AFTER HTML is updated with new classes.
+            // For this specific task, we are only modifying `updateAdminView`.
+            // The existing hardcoded list of selectors for disabling is removed and replaced by this more targeted approach.

@@ -415,3 +415,9 @@ input:checked + .ios-toggle-slider:before {
 .health-item-watchout {
     border-left: 4px solid #FF3B30; /* Red for watchout */
 }
+
+/* Role-based visibility classes */
+.admin-only-item,
+.viewer-only-item {
+    display: none; /* Hidden by default */
+}
