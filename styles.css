@@ -1,3 +1,24 @@
+.stat-card-absent {
+    background: linear-gradient(135deg, #ff3b30, #ff9500);
+}
+.stat-card-savings-total {
+    background: linear-gradient(135deg, #4CAF50, #8BC34A);
+}
+.stat-card-students-saving {
+    background: linear-gradient(135deg, #FFC107, #FFEB3B);
+}
+.stat-card-health-normal {
+    background: linear-gradient(135deg, #00C853, #69F0AE);
+}
+.stat-card-health-watchout {
+    background: linear-gradient(135deg, #D50000, #FF1744);
+}
+
+/* หากต้องการให้ปุ่มดาวน์โหลดเทมเพลตมีสีน้ำเงินเหมือนเดิม */
+#download-student-template-link {
+    background-color: #007aff;
+}
+
 * {
     font-family: 'Prompt', sans-serif;
     -webkit-tap-highlight-color: transparent;
