@@ -838,3 +838,5 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
                 document.querySelectorAll(
                     '#add-student-btn, #save-new-student-btn, #add-new-class-btn, #save-profile-btn, #save-user-form-btn, #add-new-user-btn-main, #delete-all-students-btn, #import-student-btn, #confirm-import-student-btn, #download-template-btn, #save-system-settings-btn, #add-holiday-btn, #save-holidays-btn, #recommend-holidays-ai-btn, #open-system-settings-modal-btn, #manage-users-btn, #manage-classes-btn, #add-student-by-teacher-btn, #save-new-saving-btn, #add-new-saving-btn, #save-new-health-record-btn, #add-new-health-record-btn, #attendance-modal-mark-all-present, #save-attendance-modal-btn, #change-password-btn, #save-new-password-btn, #export-csv-btn'
                 ).forEach(btn => { if (btn) btn.disabled = true; });
+    }
+}
