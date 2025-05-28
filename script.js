@@ -88,17 +88,17 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
         });
 
         let currentSelectedDate = new Date().toISOString().split('T')[0];
-        let currentAcademicYear = new Date().getFullYear() + 543; 
-        let attendanceData = {}; 
-        let allStudents = []; 
-        let allClasses = []; 
-        let attendanceHistory = []; 
-        let currentClassForModal = null; 
-        let currentGenderForModal = 'male'; 
-        let attendanceLineChart = null; 
-        
-        let academicYearSettings = {}; 
-        
+        let currentAcademicYear = new Date().getFullYear() + 543;
+        let attendanceData = {};
+        let allStudents = [];
+        let allClasses = [];
+        let attendanceHistory = [];
+        let currentClassForModal = null;
+        let currentGenderForModal = 'male';
+        let attendanceLineChart = null;
+
+        let academicYearSettings = {};
+
         let teacherProfile = {
             id: 'T001',
             name: 'คุณครูใจดี',
@@ -113,7 +113,7 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
             'teacher01': { password: 'teacher01', role: 'user', responsibleClasses: ['m1', 'm2']},
             'teacher02': { password: 'teacher02', role: 'user', responsibleClasses: ['m3', 'm4']}
         };
-        let editingUserId = null; 
+        let editingUserId = null;
 
         let savingsRecords = [];
         let healthRecords = [];
@@ -125,7 +125,7 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
         const currentDateElement = document.getElementById('current-date');
         const dateSelectorDisplay = document.getElementById('date-selector-display');
         const adminLoginStatusBtn = document.getElementById('admin-login-status-btn');
-        const datePickerInputTrigger = document.getElementById('date-picker-input-trigger'); 
+        const datePickerInputTrigger = document.getElementById('date-picker-input-trigger');
         const presentStatCard = document.getElementById('present-stat-card');
         const presentCountEl = document.getElementById('present-count');
         const presentPercentEl = document.getElementById('present-percent');
@@ -133,8 +133,8 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
         const absentPercentEl = document.getElementById('absent-percent');
         const totalDaysAttendedOverallEl = document.getElementById('total-days-attended-overall');
         const classesCheckedDisplay = document.getElementById('classes-checked-display');
-        const classesCheckedProgress = document.getElementById('classes-checked-progress'); 
-        const totalDaysProgress = document.getElementById('total-days-progress'); 
+        const classesCheckedProgress = document.getElementById('classes-checked-progress');
+        const totalDaysProgress = document.getElementById('total-days-progress');
         const classSelectionHeader = document.getElementById('class-selection-header');
         const classSelectionContent = document.getElementById('class-selection-content');
         const classListAttendanceContainer = document.getElementById('class-list-attendance');
@@ -153,12 +153,12 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
         const currentAcademicYearDisplay = document.getElementById('current-academic-year-display');
         const teacherIdInput = document.getElementById('teacher-id-input');
         const teacherNameInput = document.getElementById('teacher-name-input');
-        const changePasswordBtn = document.getElementById('change-password-btn'); 
-        const changePasswordModal = document.getElementById('change-password-modal'); 
+        const changePasswordBtn = document.getElementById('change-password-btn');
+        const changePasswordModal = document.getElementById('change-password-modal');
         const currentPasswordInput = document.getElementById('current-password-input');
         const newPasswordInput = document.getElementById('new-password-input');
         const confirmNewPasswordInput = document.getElementById('confirm-new-password-input');
-        const saveNewPasswordBtn = document.getElementById('save-new-password-btn'); 
+        const saveNewPasswordBtn = document.getElementById('save-new-password-btn');
         const adminSettingsSection = document.getElementById('admin-settings-section');
         const saveProfileBtn = document.getElementById('save-profile-btn');
         const openSystemSettingsModalBtn = document.getElementById('open-system-settings-modal-btn');
@@ -179,18 +179,18 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
         const addHolidayBtn = document.getElementById('add-holiday-btn');
         const holidayListDisplay = document.getElementById('holiday-list-display');
         const autoRecommendHolidaysToggle = document.getElementById('auto-recommend-holidays-toggle'); // New toggle
-        const recommendHolidaysAiBtn = document.getElementById('recommend-holidays-ai-btn'); 
+        const recommendHolidaysAiBtn = document.getElementById('recommend-holidays-ai-btn');
         const saveHolidaysBtn = document.getElementById('save-holidays-btn');
         const addStudentModal = document.getElementById('add-student-modal');
-        const newStudentGenderRadios = document.querySelectorAll('input[name="new-student-gender"]'); 
-        const newStudentPrefixSelect = document.getElementById('new-student-prefix'); 
-        const newStudentClassSelect = document.getElementById('new-student-class'); 
-        const manageStudentsByTeacherBtn = document.getElementById('manage-students-by-teacher-btn'); 
-        const manageStudentsByTeacherModal = document.getElementById('manage-students-by-teacher-modal'); 
-        const teacherManageClassFilter = document.getElementById('teacher-manage-class-filter'); 
-        const teacherManageGenderFilter = document.getElementById('teacher-manage-gender-filter'); 
-        const addStudentByTeacherBtn = document.getElementById('add-student-by-teacher-btn'); 
-        const teacherManagedStudentList = document.getElementById('teacher-managed-student-list'); 
+        const newStudentGenderRadios = document.querySelectorAll('input[name="new-student-gender"]');
+        const newStudentPrefixSelect = document.getElementById('new-student-prefix');
+        const newStudentClassSelect = document.getElementById('new-student-class');
+        const manageStudentsByTeacherBtn = document.getElementById('manage-students-by-teacher-btn');
+        const manageStudentsByTeacherModal = document.getElementById('manage-students-by-teacher-modal');
+        const teacherManageClassFilter = document.getElementById('teacher-manage-class-filter');
+        const teacherManageGenderFilter = document.getElementById('teacher-manage-gender-filter');
+        const addStudentByTeacherBtn = document.getElementById('add-student-by-teacher-btn');
+        const teacherManagedStudentList = document.getElementById('teacher-managed-student-list');
         const importStudentModal = document.getElementById('import-student-modal');
         const importAcademicYearSelect = document.getElementById('import-academic-year');
         const downloadTemplateModal = document.getElementById('download-template-modal');
@@ -228,13 +228,13 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
         const healthNotesInput = document.getElementById('health-notes-input');
         const saveNewHealthRecordBtn = document.getElementById('save-new-health-record-btn');
         const healthListContainer = document.getElementById('health-list');
-        const healthDetailModal = document.getElementById('health-detail-modal'); 
+        const healthDetailModal = document.getElementById('health-detail-modal');
         const healthDetailModalTitle = document.getElementById('health-detail-modal-title');
         const healthDetailContent = document.getElementById('health-detail-content');
         const healthNormalCountEl = document.getElementById('health-normal-count');
         const healthWatchoutCountEl = document.getElementById('health-watchout-count');
-        const aiModal = document.getElementById('ai-modal'); 
-        const aiModalTitle = document.getElementById('ai-modal-title'); 
+        const aiModal = document.getElementById('ai-modal');
+        const aiModalTitle = document.getElementById('ai-modal-title');
         const aiModalContentDisplay = document.getElementById('ai-modal-content-display');
         const adminLoginModal = document.getElementById('admin-login-modal');
         const googleAdminLoginBtn = document.getElementById('google-admin-login-btn');
@@ -242,8 +242,8 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
         const adminActionsModal = document.getElementById('admin-actions-modal');
         const adminLogoutBtn = document.getElementById('admin-logout-btn');
         const manageUsersModal = document.getElementById('manage-users-modal');
-        const addNewUserBtnMain = document.getElementById('add-new-user-btn-main'); 
-        const userFormModal = document.getElementById('user-form-modal'); 
+        const addNewUserBtnMain = document.getElementById('add-new-user-btn-main');
+        const userFormModal = document.getElementById('user-form-modal');
         const userFormModalTitle = document.getElementById('user-form-modal-title');
         const userFormMode = document.getElementById('user-form-mode');
         const editingUserIdHidden = document.getElementById('editing-user-id-hidden');
@@ -272,9 +272,9 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
 
         function showToast(message, type = 'info') {
             // Basic toast implementation (can be improved with a proper UI element)
-            console.log(`Toast (${type}): ${message}`);
+            console.log(\`Toast (\${type}): \${message}\`);
             // For a quick visual, use alert. Replace with a better UI element later.
-            alert(`${type.toUpperCase()}: ${message}`);
+            alert(\`\${type.toUpperCase()}: \${message}\`);
         }
 
         // This function will contain the core application setup logic
@@ -285,40 +285,40 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
             initializeAppLogic.hasRun = true;
 
             console.log("initializeAppLogic called with userId:", userId);
-            
-            loadDefaultAcademicYearSettings(currentAcademicYear); 
-            loadSampleData(); 
+
+            loadDefaultAcademicYearSettings(currentAcademicYear);
+            loadSampleData();
             setupEventListeners();
-            
+
             updateDateDisplay(new Date(currentSelectedDate));
-            
+
             populateClassListForAttendance();
             populateFilters();
-            updateDashboardStatsAndStatus(); 
+            updateDashboardStatsAndStatus();
             initAttendanceLineChart();
-            
+
             renderProfileData();
             updateAdminView();
-            
+
             populateAcademicYearSelects();
             populateClassSelect(savingsClassFilter);
             populateClassSelect(healthClassFilter);
-            populateClassSelect(newStudentClassSelect, false); 
+            populateClassSelect(newStudentClassSelect, false);
             populatePrefixSelect('male'); // Default prefixes for new student modal
 
-            settingsAcademicYearInput.value = currentAcademicYear; 
-            loadSettingsForSelectedYear(); 
+            settingsAcademicYearInput.value = currentAcademicYear;
+            loadSettingsForSelectedYear();
 
             renderSavingsList();
             updateSavingsSummary();
             renderHealthList();
             updateHealthSummary();
             updateAcademicYearDisplays();
-            renderUserListForAdmin(); 
-            renderCurrentClassListForAdmin(); 
+            renderUserListForAdmin();
+            renderCurrentClassListForAdmin();
         }
         initializeAppLogic.hasRun = false; // Static property to prevent multiple runs
-        
+
         function updateAcademicYearDisplays() {
             savingsAcademicYearDisplay.textContent = currentAcademicYear;
             healthAcademicYearDisplay.textContent = currentAcademicYear;
@@ -329,14 +329,14 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
             if (!academicYearSettings[year]) {
                 const currentJsYear = new Date().getFullYear();
                 academicYearSettings[year] = {
-                    term1: { startDate: `${currentJsYear}-05-15`, endDate: `${currentJsYear}-10-15` },
-                    term2: { startDate: `${currentJsYear}-11-01`, endDate: `${currentJsYear + 1}-03-15` },
+                    term1: { startDate: \`\${currentJsYear}-05-15\`, endDate: \`\${currentJsYear}-10-15\` },
+                    term2: { startDate: \`\${currentJsYear}-11-01\`, endDate: \`\${currentJsYear + 1}-03-15\` },
                     holidays: [
-                        { date: `${currentJsYear}-07-28`, description: 'วันเฉลิมพระชนมพรรษา ร.10' },
-                        { date: `${currentJsYear}-08-12`, description: 'วันแม่แห่งชาติ' },
-                        { date: `${currentJsYear}-10-13`, description: 'วันคล้ายวันสวรรคต ร.9' },
-                        { date: `${currentJsYear}-12-05`, description: 'วันพ่อแห่งชาติ' },
-                        { date: `${currentJsYear}-12-10`, description: 'วันรัฐธรรมนูญ' },
+                        { date: \`\${currentJsYear}-07-28\`, description: 'วันเฉลิมพระชนมพรรษา ร.10' },
+                        { date: \`\${currentJsYear}-08-12\`, description: 'วันแม่แห่งชาติ' },
+                        { date: \`\${currentJsYear}-10-13\`, description: 'วันคล้ายวันสวรรคต ร.9' },
+                        { date: \`\${currentJsYear}-12-05\`, description: 'วันพ่อแห่งชาติ' },
+                        { date: \`\${currentJsYear}-12-10\`, description: 'วันรัฐธรรมนูญ' },
                     ]
                 };
             }
@@ -355,11 +355,11 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
             const firstNamesMale = ['สมชาย', 'วิรัช', 'ประยุทธ', 'ทักษิณ', 'อภิสิทธิ์', 'ธนาธร', 'เอกชัย', 'บรรหาร'];
             const firstNamesFemale = ['สมหญิง', 'ยุพิน', 'ยิ่งลักษณ์', 'สุดารัตน์', 'ช่อลดา', 'พรรณิการ์', 'กัลยา', 'ทิพย์สุดา'];
             const lastNames = ['ใจดี', 'รักเรียน', 'มีทรัพย์', 'สุขสบาย', 'เจริญพร', 'รุ่งเรือง', 'พัฒนา', 'ก้าวหน้า'];
-            
+
             let studentIdCounter = 1000;
             allStudents = [];
             allClasses.forEach(cls => {
-                for (let i = 0; i < 8; i++) { 
+                for (let i = 0; i < 8; i++) {
                     const prefix = prefixesMale[Math.floor(Math.random() * prefixesMale.length)];
                     allStudents.push({
                         id: String(studentIdCounter++),
@@ -369,10 +369,10 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
                         classId: cls.id,
                         className: cls.name,
                         gender: inferGenderFromPrefix(prefix),
-                        academicYear: currentAcademicYear 
+                        academicYear: currentAcademicYear
                     });
                 }
-                for (let i = 0; i < 7; i++) { 
+                for (let i = 0; i < 7; i++) {
                     const prefix = prefixesFemale[Math.floor(Math.random() * prefixesFemale.length)];
                     allStudents.push({
                         id: String(studentIdCounter++),
@@ -389,7 +389,7 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
 
             attendanceData = {};
             allStudents.forEach(student => {
-                attendanceData[student.id] = Math.random() < 0.85; 
+                attendanceData[student.id] = Math.random() < 0.85;
             });
 
             attendanceHistory = [];
@@ -400,27 +400,27 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
                 const dateStr = date.toISOString().split('T')[0];
                 const records = {};
                 allStudents.forEach(student => {
-                    records[student.id] = Math.random() < (0.7 + Math.random() * 0.25); 
+                    records[student.id] = Math.random() < (0.7 + Math.random() * 0.25);
                 });
                 attendanceHistory.push({ date: dateStr, records: records, academicYear: currentAcademicYear });
             }
             attendanceHistory.push({ date: currentSelectedDate, records: { ...attendanceData }, academicYear: currentAcademicYear });
 
-            savingsRecords = allStudents.slice(0, 15).map((s, idx) => ({ 
-                studentId: s.id, studentName: `${s.prefix}${s.firstName} ${s.lastName}`, classId: s.classId,
-                date: `2024-05-${String(Math.floor(Math.random()*15)+1).padStart(2,'0')}`, 
+            savingsRecords = allStudents.slice(0, 15).map((s, idx) => ({
+                studentId: s.id, studentName: \`\${s.prefix}\${s.firstName} \${s.lastName}\`, classId: s.classId,
+                date: \`2024-05-\${String(Math.floor(Math.random()*15)+1).padStart(2,'0')}\`,
                 amount: Math.floor(Math.random() * 100) + 10,
-                type: idx % 4 === 0 ? 'withdraw' : 'deposit', 
-                academicYear: currentAcademicYear 
+                type: idx % 4 === 0 ? 'withdraw' : 'deposit',
+                academicYear: currentAcademicYear
             }));
             healthRecords = allStudents.slice(5, 10).map(s => {
-                const weight = Math.floor(Math.random() * 30) + 40; 
-                const height = Math.floor(Math.random() * 30) + 140; 
+                const weight = Math.floor(Math.random() * 30) + 40;
+                const height = Math.floor(Math.random() * 30) + 140;
                 const bmi = parseFloat((weight / ((height/100)**2)).toFixed(1));
                 return {
-                    studentId: s.id, studentName: `${s.prefix}${s.firstName} ${s.lastName}`, classId: s.classId,
-                    date: `2024-05-${String(Math.floor(Math.random()*28)+1).padStart(2,'0')}`,
-                    weight, height, bmi, 
+                    studentId: s.id, studentName: \`\${s.prefix}\${s.firstName} \${s.lastName}\`, classId: s.classId,
+                    date: \`2024-05-\${String(Math.floor(Math.random()*28)+1).padStart(2,'0')}\`,
+                    weight, height, bmi,
                     notes: bmi > 25 ? 'น้ำหนักเกิน' : (bmi < 18.5 ? 'น้ำหนักน้อย' : 'สมส่วน'),
                     status: bmi > 25 || bmi < 18.5 ? 'watchout' : 'normal',
                     academicYear: currentAcademicYear
@@ -433,7 +433,7 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
             const femalePrefixes = ['เด็กหญิง', 'นางสาว', 'ด.ญ.'];
             if (malePrefixes.some(p => prefix.toLowerCase().includes(p.toLowerCase()))) return 'male';
             if (femalePrefixes.some(p => prefix.toLowerCase().includes(p.toLowerCase()))) return 'female';
-            return 'unknown'; 
+            return 'unknown';
         }
 
         function populatePrefixSelect(gender) {
@@ -453,7 +453,7 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
 
         function populateAcademicYearSelects() {
             const currentJsYear = new Date().getFullYear();
-            const years = [currentJsYear + 543 -1, currentJsYear + 543, currentJsYear + 543 + 1]; 
+            const years = [currentJsYear + 543 -1, currentJsYear + 543, currentJsYear + 543 + 1];
             // Populate import and template academic year selects based on existing academicYearSettings keys
             const availableYears = Object.keys(academicYearSettings).map(Number).sort((a,b) => a - b);
             if (availableYears.length === 0) { // If no settings exist, default to current year
@@ -466,45 +466,45 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
                     availableYears.forEach(year => {
                         const option = document.createElement('option');
                         option.value = year;
-                        option.textContent = `ปีการศึกษา ${year}`;
+                        option.textContent = \`ปีการศึกษา \${year}\`;
                         select.appendChild(option);
                     });
-                    select.value = currentAcademicYear; 
+                    select.value = currentAcademicYear;
                 }
             });
         }
-        
+
         function populateStudentSelectInModal(selectElement, classId, placeholderText = "เลือกนักเรียน...") {
             if (!selectElement) return;
-            selectElement.innerHTML = `<option value="">${placeholderText}</option>`;
+            selectElement.innerHTML = \`<option value="">\${placeholderText}</option>\`;
             // Filter students based on selected class AND academic year AND teacher's responsible classes
-            const studentsInClass = allStudents.filter(s => 
-                s.academicYear === currentAcademicYear && 
+            const studentsInClass = allStudents.filter(s =>
+                s.academicYear === currentAcademicYear &&
                 s.classId === classId &&
                 (teacherProfile.isAdmin || teacherProfile.responsibleClasses.includes(s.classId))
             );
-            studentsInClass.sort((a,b) => `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`, 'th'))
+            studentsInClass.sort((a,b) => \`\${a.firstName} \${a.lastName}\`.localeCompare(\`\${b.firstName} \${b.lastName}\`, 'th'))
             .forEach(student => {
                 const option = document.createElement('option');
                 option.value = student.id;
-                option.textContent = `${student.prefix}${student.firstName} ${student.lastName}`;
+                option.textContent = \`\${student.prefix}\${student.firstName} \${student.lastName}\`;
                 selectElement.appendChild(option);
             });
         }
 
-        function populateClassSelect(selectElement, addAllOption = true) { 
+        function populateClassSelect(selectElement, addAllOption = true) {
             if (!selectElement) return;
-            const currentValue = selectElement.value; 
+            const currentValue = selectElement.value;
             selectElement.innerHTML = '';
             if (addAllOption) {
                  selectElement.innerHTML = '<option value="all">ทุกห้องเรียน</option>';
             } else {
                  selectElement.innerHTML = '<option value="">เลือกชั้นเรียน</option>';
             }
-            
+
             // Filter classes based on teacher's responsible classes
-            const classesToDisplay = teacherProfile.isAdmin 
-                                    ? allClasses 
+            const classesToDisplay = teacherProfile.isAdmin
+                                    ? allClasses
                                     : allClasses.filter(cls => teacherProfile.responsibleClasses.includes(cls.id));
 
             classesToDisplay.forEach(cls => {
@@ -513,7 +513,7 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
                 option.textContent = cls.name;
                 selectElement.appendChild(option);
             });
-            if (classesToDisplay.find(c => c.id === currentValue)) { 
+            if (classesToDisplay.find(c => c.id === currentValue)) {
                 selectElement.value = currentValue;
             } else if (addAllOption) {
                 selectElement.value = 'all';
@@ -525,7 +525,7 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
         function setupEventListeners() {
             navItems.forEach(item => item.addEventListener('click', handleNavClick));
             adminLoginStatusBtn.addEventListener('click', handleAdminStatusClick);
-            
+
             // Modified date selector to open modal
             dateSelectorDisplay.addEventListener('click', () => {
                 document.getElementById('date-picker-input').value = currentSelectedDate; // Set modal input to current date
@@ -558,9 +558,9 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
                 newPasswordInput.value = '';
                 confirmNewPasswordInput.value = '';
                 openModal(changePasswordModal);
-            }); 
-            saveNewPasswordBtn.addEventListener('click', handleChangePassword); 
-            
+            });
+            saveNewPasswordBtn.addEventListener('click', handleChangePassword);
+
             // Note: openSystemSettingsModalBtn was referenced but not found in HTML or const list.
             // If there's a button to open system settings directly, its ID should be 'open-system-settings-modal-btn'
             // and it should be declared as a const. For now, this listener might not attach to anything.
@@ -574,23 +574,23 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
             }
 
 
-            settingsAcademicYearInput.addEventListener('change', loadSettingsForSelectedYear); 
-            settingsAcademicYearInput.addEventListener('keyup', (e) => { 
+            settingsAcademicYearInput.addEventListener('change', loadSettingsForSelectedYear);
+            settingsAcademicYearInput.addEventListener('keyup', (e) => {
                 if (e.key === 'Enter') loadSettingsForSelectedYear();
             });
 
             manageUsersBtn.addEventListener('click', () => openModal(manageUsersModal));
-            addNewUserBtnMain.addEventListener('click', () => { 
+            addNewUserBtnMain.addEventListener('click', () => {
                 userFormModalTitle.textContent = 'เพิ่มผู้ใช้งานใหม่';
                 userFormMode.value = 'add';
                 userFormIdInput.value = '';
-                userFormIdInput.removeAttribute('readonly'); 
+                userFormIdInput.removeAttribute('readonly');
                 userFormPasswordInput.value = '';
                 userFormRoleSelect.value = 'user';
-                populateResponsibleClassesCheckboxes(userFormResponsibleClassesCheckboxes, []); 
+                populateResponsibleClassesCheckboxes(userFormResponsibleClassesCheckboxes, []);
                 openModal(userFormModal);
             });
-            saveUserFormBtn.addEventListener('click', handleSaveUserForm); 
+            saveUserFormBtn.addEventListener('click', handleSaveUserForm);
 
             if(manageClassesBtn) { // Check if element exists
                 manageClassesBtn.addEventListener('click', () => openModal(manageClassesModal));
@@ -601,23 +601,23 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
 
 
             openHolidaySettingsModalBtn.addEventListener('click', () => {
-                holidayModalYearDisplay.textContent = settingsAcademicYearInput.value; 
-                populateHolidayListDisplay(settingsAcademicYearInput.value); 
+                holidayModalYearDisplay.textContent = settingsAcademicYearInput.value;
+                populateHolidayListDisplay(settingsAcademicYearInput.value);
                 openModal(holidaySettingsModal);
             });
             addHolidayBtn.addEventListener('click', handleAddHoliday);
-            recommendHolidaysAiBtn.addEventListener('click', handleRecommendHolidaysAI); 
+            recommendHolidaysAiBtn.addEventListener('click', handleRecommendHolidaysAI);
             autoRecommendHolidaysToggle.addEventListener('change', updateRecommendHolidaysButtonState); // New event listener for toggle
             saveHolidaysBtn.addEventListener('click', () => {
                 closeModal(holidaySettingsModal);
-                loadSettingsForSelectedYear(); 
+                loadSettingsForSelectedYear();
             });
 
-            
+
             document.getElementById('add-student-btn').addEventListener('click', () => {
                 document.getElementById('new-student-id').value = '';
-                newStudentGenderRadios[0].checked = true; 
-                populatePrefixSelect('male'); 
+                newStudentGenderRadios[0].checked = true;
+                populatePrefixSelect('male');
                 document.getElementById('new-student-firstname').value = '';
                 document.getElementById('new-student-lastname').value = '';
                 newStudentClassSelect.value = '';
@@ -631,26 +631,26 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
             document.getElementById('save-new-student-btn').addEventListener('click', handleSaveNewStudent);
 
             manageStudentsByTeacherBtn.addEventListener('click', () => {
-                populateClassSelect(teacherManageClassFilter); 
-                teacherManageClassFilter.value = 'all'; 
-                teacherManageGenderFilter.value = 'all'; 
+                populateClassSelect(teacherManageClassFilter);
+                teacherManageClassFilter.value = 'all';
+                teacherManageGenderFilter.value = 'all';
                 renderTeacherManagedStudentList();
                 openModal(manageStudentsByTeacherModal);
             });
-            teacherManageClassFilter.addEventListener('change', renderTeacherManagedStudentList); 
-            teacherManageGenderFilter.addEventListener('change', renderTeacherManagedStudentList); 
+            teacherManageClassFilter.addEventListener('change', renderTeacherManagedStudentList);
+            teacherManageGenderFilter.addEventListener('change', renderTeacherManagedStudentList);
 
             addStudentByTeacherBtn.addEventListener('click', () => {
                 document.getElementById('new-student-id').value = '';
-                newStudentGenderRadios[0].checked = true; 
+                newStudentGenderRadios[0].checked = true;
                 populatePrefixSelect('male');
                 document.getElementById('new-student-firstname').value = '';
                 document.getElementById('new-student-lastname').value = '';
-                
+
                 const responsibleClasses = teacherProfile.isAdmin ? allClasses.map(c => c.id) : teacherProfile.responsibleClasses;
                 if (responsibleClasses.length === 1) {
                     newStudentClassSelect.value = responsibleClasses[0];
-                    newStudentClassSelect.setAttribute('disabled', true); 
+                    newStudentClassSelect.setAttribute('disabled', true);
                 } else {
                     newStudentClassSelect.value = '';
                     newStudentClassSelect.removeAttribute('disabled');
@@ -687,8 +687,8 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
                 const selectedClass = allClasses.find(c => c.id === selectedClassId);
                 savingModalClassName.textContent = selectedClass ? selectedClass.name : '';
                 populateStudentSelectInModal(savingStudentSelect, selectedClassId, "เลือกนักเรียนในห้อง...");
-                savingDateInput.value = new Date().toISOString().split('T')[0]; 
-                savingTypeToggle.checked = false; 
+                savingDateInput.value = new Date().toISOString().split('T')[0];
+                savingTypeToggle.checked = false;
                 updateSavingToggleLabel();
                 openModal(addSavingModal);
             });
@@ -704,15 +704,15 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
                 const selectedClass = allClasses.find(c => c.id === selectedClassId);
                 healthModalClassName.textContent = selectedClass ? selectedClass.name : '';
                 populateStudentSelectInModal(healthStudentSelect, selectedClassId, "เลือกนักเรียนในห้อง...");
-                healthDateInput.value = new Date().toISOString().split('T')[0]; 
+                healthDateInput.value = new Date().toISOString().split('T')[0];
                 openModal(addHealthRecordModal);
             });
             saveNewHealthRecordBtn.addEventListener('click', handleSaveNewHealthRecord);
-            
+
             document.getElementById('history-class-filter').addEventListener('change', updateAttendanceHistoryDisplay);
             document.getElementById('history-month-filter').addEventListener('change', updateAttendanceHistoryDisplay);
             document.getElementById('report-class-filter').addEventListener('change', updateReportDetails);
-            
+
 
 
             showHistoryBtn.addEventListener('click', () => showProfileSubPage('history'));
@@ -767,7 +767,7 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
                 // Use email/password sign-in instead of Google
                 const email = document.getElementById('admin-email-input')?.value;
                 const password = document.getElementById('admin-password-input')?.value;
-                
+
                 if (!email || !password) {
                     if (errorElement) {
                         errorElement.textContent = "กรุณากรอกอีเมลและรหัสผ่าน";
@@ -775,7 +775,7 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
                     }
                     return;
                 }
-                
+
                 signInWithEmailAndPassword(auth, email, password)
                     .then((userCredential) => {
                         // Check if this is the admin account
@@ -809,7 +809,7 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
                     });
             });
         }
-        
+
         function updateAdminView() {
             adminSettingsSection.classList.toggle('hidden', !teacherProfile.isAdmin);
             if (teacherProfile.isAdmin) {
@@ -838,3 +838,5 @@ import { initializeApp as initializeFirebaseApp } from "https://www.gstatic.com/
                 document.querySelectorAll(
                     '#add-student-btn, #save-new-student-btn, #add-new-class-btn, #save-profile-btn, #save-user-form-btn, #add-new-user-btn-main, #delete-all-students-btn, #import-student-btn, #confirm-import-student-btn, #download-template-btn, #save-system-settings-btn, #add-holiday-btn, #save-holidays-btn, #recommend-holidays-ai-btn, #open-system-settings-modal-btn, #manage-users-btn, #manage-classes-btn, #add-student-by-teacher-btn, #save-new-saving-btn, #add-new-saving-btn, #save-new-health-record-btn, #add-new-health-record-btn, #attendance-modal-mark-all-present, #save-attendance-modal-btn, #change-password-btn, #save-new-password-btn, #export-csv-btn'
                 ).forEach(btn => { if (btn) btn.disabled = true; });
+            }
+}
