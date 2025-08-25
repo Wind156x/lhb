@@ -159,7 +159,10 @@ const Worksheet: React.FC<WorksheetProps> = ({ title, columns, problems, answerT
 
                 <div className="p-6">
                     {problems.length > 0 ? (
-                        <div className={`gap-x-8 ${columnClasses[columns]}`}>
+                        <div 
+                            className={`problems-container gap-x-8 ${columnClasses[columns]}`}
+                            data-columns={columns}
+                        >
                             {problems.map(p => (
                                 <ProblemItem 
                                     key={p.number} 

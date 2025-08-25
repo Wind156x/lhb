@@ -229,7 +229,7 @@ const App: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col md:flex-row min-h-screen">
+        <div id="app-container" className="flex flex-col md:flex-row min-h-screen">
             <Sidebar
                 settings={settings}
                 onSettingsChange={setSettings}

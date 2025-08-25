@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 body {
@@ -42,6 +43,11 @@ body {
         height: auto !important;
     }
     
+    #app-container {
+        display: block !important;
+        min-height: 0 !important;
+    }
+
     /* Reset the main content wrapper from App.tsx */
     .flex-1.p-4.md\:p-8.overflow-auto {
         padding: 0 !important;
@@ -85,5 +91,20 @@ body {
     }
     .text-blue-600 {
         color: #2563eb !important;
+    }
+    
+    /* Enforce column layout for printing, overriding responsive classes */
+    .problems-container[data-columns='1'] {
+        columns: 1;
+    }
+    .problems-container[data-columns='2'] {
+        columns: 2;
+        -webkit-columns: 2;
+        -moz-columns: 2;
+    }
+    .problems-container[data-columns='3'] {
+        columns: 3;
+        -webkit-columns: 3;
+        -moz-columns: 3;
     }
 }
