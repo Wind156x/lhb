@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+.problem-item {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+#root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Print-specific styles */
+@page {
+    size: A4;
+    margin: 1.5cm; /* Define A4 paper size and margins */
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    body {
+        background-color: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Reset the main layout for printing, overriding flexbox screen layout */
+    body, #root {
+        display: block !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        min-height: 0 !important;
+        width: auto !important;
+        height: auto !important;
+    }
+    
+    /* Reset the main content wrapper from App.tsx */
+    .flex-1.p-4.md\:p-8.overflow-auto {
+        padding: 0 !important;
+        overflow: visible !important;
+        flex: none !important;
+    }
+    
+    /* Reset the worksheet wrapper from Worksheet.tsx */
+    .max-w-4xl.mx-auto.w-full {
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+
+    /* Style the main worksheet element for printing */
+    main#worksheet {
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        min-height: 0 !important; /* Crucial to allow natural page flow */
+        border-radius: 0 !important;
+    }
+    
+    /* Adjust padding inside the worksheet for a cleaner print layout */
+    main#worksheet > header {
+        padding: 0 0 1rem 0 !important;
+        margin-bottom: 1rem !important;
+        border-bottom: 1px solid #ccc !important;
+        page-break-after: avoid; /* Prevent a page break right after the header */
+    }
+
+    main#worksheet .p-6 {
+        padding: 0 !important;
+    }
+    
+    /* Ensure colors and backgrounds print correctly for answer key highlights */
+    .bg-green-100 {
+        background-color: #f0fdf4 !important;
+    }
+    .text-blue-600 {
+        color: #2563eb !important;
+    }
+}
